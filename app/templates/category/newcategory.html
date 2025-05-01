@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% block head %}
+<!-- Bootstrap CSS -->
+<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<!-- Bootstrap JS -->
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<!-- Datepicker CSS -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" rel="stylesheet">
+<!-- Datepicker JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+
+{% endblock head %}
+
+{% block body %}
+    <!-- <div id="loading" class="loader loader-change-size"></div> -->
+
+<div class="newcategory-wrapper">
+    <div class="date-container">
+        <form class="date-form" action="/submit-dates" method="post">
+            <div class="form-group">
+                <label class="date-label" for="startDate">Дата від:</label>
+                <input type="text" id="startDate" name="startDate" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label class="date-label" for="endDate">Дата до:</label>
+                <input type="text" id="endDate" name="endDate" class="form-control" required>
+            </div>
+            <div class="center">
+                <button type="submit" class="date-btn">Обрати</button>
+            </div>
+            <!-- <button type="submit" class="btn btn-primary">Обрати</button> -->
+        </form>
+    </div>
+    <div class="exist-category-wrapper" id="exist-category-wrapper">
+        <h5>Існуючі категорії:</h5>
+        {% for cat in categories %}
+            <p style="margin: 0;">- {{cat}}</p>
+        {% endfor %}
+    </div>
+    
+    <!-- Placeholder for updated info -->
+    <div class="temp1" id="updated-info-container">
+        <!-- This will be replaced with AJAX response -->
+    </div>
+    <div class="detail-view-wrp" id="detail-view">
+        <!-- Content updated when a button is clicked -->
+    </div>
+    <!-- <div class="temp1"></div> -->
+    <!-- <div class="temp2"></div> -->
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
+<script>
+    const socket = io({autoConnect: false});
+    socket.connect();
+
+    socket.on('newcategory', function(message){
+        // document.getElementById("client_update_message").innerHTML = message;
+        console.log("newcategory", message);
+    });
+
+    $(document).ready(function(){
+        $('#startDate').datepicker({
+            format: 'dd-mm-yyyy',
+            autoclose: true,
+            todayHighlight: true,
+            clearBtn: true,
+        });
+
+        $('#endDate').datepicker({
+            format: 'dd-mm-yyyy',
+            autoclose: true,
+            todayHighlight: true,
+            clearBtn: true,
+        });
+
+        // socket.on('newcategory', function(message){
+        //     // document.getElementById("client_update_message").innerHTML = message;
+        //     console.log("newcategory", message);
+        // });
+
+        $('.date-form').on('submit', function(event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            var startDate = $('#startDate').val();
+            var endDate = $('#endDate').val();
+
+            document.getElementById('loading').style.display = 'grid';
+
+            $.ajax({
+                type: 'POST',
+                url: '/submit-dates',
+                data: {startDate: startDate, endDate: endDate},
+                success: function(response) {
+
+                    document.getElementById('loading').style.display = 'none';
+
+                    $('#updated-info-container').html(response); // Update the specific div with the new data
+                    $('.category-button').on('click', function() {
+                        $('.category-button').removeClass('active'); // Remove active class from previously active buttons
+                        $(this).addClass('active'); // Add active class to the clicked button
+
+                        const key = $(this).data('key');
+
+                    });
+                },
+                error: function() {
+                    alert('There was an error processing your request.');
+                }
+            });
+        });
+    });
+</script>
+{% endblock body %}

@@ -1,0 +1,25 @@
+<div class="document-info-wrp">
+    {% if documents %}
+        <div class="document-btn-wrp">
+            {% for document in documents %}
+                <button class="document-btn" id="btn-{{ document['_id'] }}" onclick="toggleInfo('{{document['_id']}}')">
+                    Запис: {{ loop.index }}
+                </button>
+            {% endfor %}
+        </div>
+        {% for document in documents %}
+            <div class="document-info">
+                <div id="info-{{ document['_id'] }}" style="display: none;">
+                    <!-- <h4>Деталі опрацьованого файлу:</h4> -->
+                    <p class="document-info-text"><strong>Деталі опрацьованого файлу:</strong> {{document['file_name']}}</p>
+                    <p class="document-info-text"><strong>Присвоєна категорія:</strong> {{document['category']}}</p>
+                    <p class="document-info-text"><strong>Пропозиція нової категорії:</strong> {{document['potential_new_category']}}</p>
+                    <p class="document-info-text"><strong>Транскрипція:</strong> {{document['transcription']}}</p>
+                    <p class="document-info-text"><strong>ID в БД:</strong> {{document['_id']}}</p>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>Something went wrong...</p>
+    {% endif %}
+</div>

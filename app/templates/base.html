@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1"> HUETA!!! -->
+
+
+    {{ dropzone.load_css() }}
+
+
+    <!-- <title>{{ title }}</title> -->
+    <title>{{ title }}</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&family=Oswald:wght@200..700&display=swap" rel="stylesheet">
+    
+    <!-- <title>Document</title> -->
+    {% block head %}{% endblock head %}
+    <link rel="stylesheet", href="{{url_for("static", filename="scss/styles.css")}}">
+    <link rel="stylesheet", href="{{url_for("static", filename="scss/sentiment.css")}}">
+    <link rel="stylesheet", href="{{url_for("static", filename="scss/loader.css")}}">
+</head>
+<body>
+    <div id="loading" class="loader custom-box-sizing"></div>
+
+    <div class="sidenav">
+        <a href="{{ url_for('sentiment.sentiment_index') }}" class="{% if title == 'Сентимент' %}active{% endif %}">Сентимент</a>
+        <a href="{{ url_for('category.category_index') }}" class="{% if title == 'Категоризація' %}active{% endif %}">Категоризація</a>
+        <a href="{{ url_for('category.newcategory') }}" class="{% if title == 'Нові категорії' %}active{% endif %}">Нові категорії</a>
+    </div>
+    <div class="main-content">
+        <!-- {% block content %}{% endblock %} -->
+        {% block body %}{% endblock body %}
+    </div>
+    <script src="../static/js/scripts.js"></script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+{% if combined_data%}
+    <h6>Пропозиція по створенню нових категорії:</h6>
+    <div class="newcategory-btn-wrp">
+    {% for key, values in combined_data.items() %}
+        <button class="category-button" 
+                style="border-radius: 5px;"
+                data-key="{{ key }}"
+                onclick="handleShowDocumentsButtonClick('{{ key }}')"
+        >
+            {{ key }}
+        </button>
+    {% endfor %}
+    </div>
+{% else %}
+    {% if date_obj %}
+        <!-- <p>No updated information available for the selected date range {{ date_obj['start_date']}} - {{ date_obj['end_date'] }}.</p> -->
+        <p>Пропозиції по створенню нових категорій відсутні за обраний період: {{ date_obj['start_date']}} - {{ date_obj['end_date'] }}.</p>
+    {% endif %}
+{% endif %}
+<!-- {% if combined_data%}
+
+    <h6>Пропозиція по створенню нових категорії:</h6>
+    {% for key, values in combined_data.items() %}
+        <button class="category-button" 
+                style="border-radius: 5px;"
+                data-list="{{ values }}"
+                data-key="{{ key }}"
+        >
+            {{ key }}
+        </button>
+    {% endfor %}
+{% else %}
+    <p>No updated information available for the selected date range.</p>
+{% endif %} -->
+

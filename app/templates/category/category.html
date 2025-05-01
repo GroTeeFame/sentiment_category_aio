@@ -1,0 +1,188 @@
+{% extends 'base.html' %}
+{% block head %}
+<!-- <title>reCategory</title> -->
+<title>{{title}}</title>
+{% endblock head %}
+
+{% block body %}
+    <!-- <div id="loading" class="loader"></div> -->
+        <div id="wrapper" class="wrapper">
+            <!-- <div class="grid-row"> -->
+            <div class="row-title">
+                <h1 class="analize-title">Завантажте .wav файли</h1>
+                <!-- <img src="static/images/loading.gif" alt="gif" id="loading" style="display: none;"> -->
+            </div>
+            <div class="row-dropzone">
+                <form action="/analyze" class="dropzone" id="file-dropzone"></form>
+            </div>
+            <div class="row-category">
+                <div class="category-info" id="document-info">
+                    <div style="display: flex; justify-content: center; align-items: center; overflow: auto;">
+                        <p>Тут буде відображена інформація про опрацьовані файли...</p>
+                    </div>
+                    <!-- <p style="padding: 10px; margin: 0;">Опрацьований документ:</p> -->
+                </div>
+            </div>
+            <div class="row-button">
+                <button id="upload-btn" class="btn">Завантажити файли для опрацювання</button>
+                <button id="download-btn-category" style="display: none;" class="btn">Скачати результати в .xlsx файл</button>
+            </div>
+            <div id="spinner"></div>
+        </div>
+    </div>
+
+    <div class="client_update" id="client_update_wrp">
+        <p id="client_update_message"></p>
+    </div>
+
+
+    <!-- flash message section START -->
+    <div class="flash container" id="flash-container">
+        <div class="center">
+
+            <div class="flash-wrapper" id="flash-wrapper">
+                <div class="warning" id="div-flash"></div>
+            </div>
+            <button type="button" class="close-all" onclick="removeAllFlash()">Закрити</button>
+            
+        </div>
+    </div>
+    <!-- flash message section END -->
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.2/min/dropzone.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
+    <script>
+        const socket = io({autoConnect: false});
+
+        socket.connect();
+
+        let agregated_result = [];
+        var uploadedFiles = [];
+
+        Dropzone.autoDiscover = false;
+        var myDropzone = new Dropzone("#file-dropzone", {
+            url: "/analyze",
+            autoProcessQueue: false,
+            maxFiles: 50,
+            uploadMultiple: true, 
+            parallelUploads: 50,
+            acceptedFiles: ".wav",
+            dictDefaultMessage: "Перетягніть файли в зону, або натисніть щоб обрати файли (максимум ## файлів)",
+            accept: function(file, done) {
+                console.log("File accept: ", file.name);
+
+                // Compute a simple hash or check the name
+                let fileHash = file.name + file.size;
+
+                // Check if the file already exists
+                if (uploadedFiles.includes(fileHash)) {
+                    alert("This file is a duplicate and won't be added.");
+                    // done("This file is a duplicate and won't be added.");
+                    myDropzone.removeFile(file); // Remove the file from Dropzone
+                } else {
+                    uploadedFiles.push(fileHash); // Add the file to the list of uploaded files
+                    done(); // Accept the file
+                }
+            },
+        });
+
+        // socket.on('client_update', function(message){
+        //     console.log("client_update", message);
+        // });
+
+
+        document.getElementById("upload-btn").addEventListener("click", function() {
+            if (myDropzone.getQueuedFiles().length > 0) {
+                console.log("Queued files: ", myDropzone.getQueuedFiles());
+                myDropzone.processQueue();
+            } else {
+                alert("Please select a file to upload.");
+            }
+        });
+
+        myDropzone.on("addedfile", function(file) {
+            console.log("File added: ", file.name);
+            console.log("--------------------------")
+            console.log(file);
+            console.log("--------------------------")
+
+        });
+
+        socket.on('client_update', function(message){
+            document.getElementById("client_update_message").innerHTML = message;
+            console.log("client_update", message);
+        });
+
+        myDropzone.on("removedfile", function(file) { 
+            console.log("File removed: ", file.name);
+
+        });
+
+        myDropzone.on("sending", function(file, xhr, formData) {
+            console.log("Sending file: ", file.name);
+            document.getElementById('upload-btn').style.display = 'none';
+            document.getElementById('loading').style.display = 'grid'; //FIXME
+            document.getElementById("client_update_wrp").style.display = 'flex';
+
+        });
+
+        myDropzone.on("successmultiple", function(files, response){
+            console.log("SUCCESS MULTIPLE");
+            document.getElementById('document-info').innerHTML = response;
+            document.getElementById('download-btn-category').style.display = 'block';
+            document.getElementById('loading').style.display = 'none'; //FIXME
+            document.getElementById("client_update_wrp").style.display = 'none';
+
+
+
+        });
+        myDropzone.on("errormultiple", function(files, response){
+            console.log("ERROR MULTIPLE");
+        });
+
+        myDropzone.on("success", function(file, response) {
+            console.log("SUCCESS ONE");
+            console.log("File uploaded successfully: ", file.name);
+
+            agregated_result.push(response)
+            
+            console.log("Response after dropzone.success:")
+            console.log(response)
+
+
+            console.log("agregated_result:")
+            console.log(agregated_result)
+
+            document.getElementById('document-info').innerHTML = response;
+            // document.getElementById('document-info').innerHTML += response;
+            document.getElementById('download-btn-category').style.display = 'block';
+            document.getElementById('loading').style.display = 'none'; //FIXME
+            // document.getElementsByClassName("client_update").style.display = 'none';
+            document.getElementById("client_update_wrp").style.display = 'none';
+
+            if (response.messages) {
+                displayFlashMessages(response.messages);
+            }
+
+        });
+
+        myDropzone.on("error", function(file, response) {
+            console.log("ERROR ONE");
+
+            // In case of an error, response might not be properly parsed, handle accordingly
+            let messages = [];
+            if (typeof response === 'string') {
+                messages.push(response);
+            } else if (response.messages) {
+                messages = response.messages;
+            }
+            if (messages.length > 0) {
+                displayFlashMessages(messages);
+            }
+            document.getElementById('loading').style.display = 'none'; // Hide loading spinner
+            document.getElementById("client_update_wrp").style.display = 'none';
+
+        });
+
+    </script>
+{% endblock body %}

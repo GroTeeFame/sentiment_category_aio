@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% block head %}
+<title>AI_sentiment</title>
+{% endblock head %}
+
+{% block body %}
+    <div id="wrapper" class="wrapper-sentiment">
+        <div class="grid-row">
+            <h1>Завантажте .xlsx файл</h1>
+            <!-- <img src="static/images/loading.gif" alt="gif" id="loading" style="display: none;"> -->
+        </div>
+        <div class="grid-row">
+            <form action="/analyze-sentiment" class="dropzone" id="file-dropzone"></form>
+        </div>
+        <div class="grid-row">
+            <button id="upload-btn" class="btn-sentiment">Завантажити файл для опрацювання</button>
+            <button id="download-btn" style="display: none;" class="btn-sentiment">Скачати результати</button>
+        </div>
+    </div>
+    
+
+    <!-- flash message section START -->
+    <div class="flash container" id="flash-container">
+        <div class="center">
+
+            <div class="flash-wrapper" id="flash-wrapper">
+                <div class="warning" id="div-flash"></div>
+            </div>
+            <button type="button" class="close-all" onclick="removeAllFlash()">Закрити</button>
+            
+        </div>
+    </div>
+    <!-- flash message section END -->
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.2/min/dropzone.min.js"></script>
+    <script>
+        Dropzone.autoDiscover = false;
+        var myDropzone = new Dropzone("#file-dropzone", {
+            url: "/analyze-sentiment",
+            autoProcessQueue: false,
+            maxFiles: 1,
+            acceptedFiles: ".xlsx",
+            dictDefaultMessage: "Перетягніть файл в зону, або натисніть щоб обрати файл",
+        });
+
+
+        document.getElementById("upload-btn").addEventListener("click", function() {
+            if (myDropzone.getQueuedFiles().length > 0) {
+                myDropzone.processQueue();
+            } else {
+                alert("Please select a file to upload.");
+            }
+        });
+
+        myDropzone.on("addedfile", function(file) {
+            console.log("File added: ", file.name);
+        });
+
+        myDropzone.on("removedfile", function(file) {
+            console.log("File removed: ", file.name);
+        });
+
+        myDropzone.on("sending", function(file, xhr, formData) {
+            console.log("Sending file: ", file.name);
+            // const spinner = document.getElementById('spinner')
+            document.getElementById('upload-btn').style.display = 'none';
+            // document.getElementById('spinner').style.display = 'block';
+            
+            // document.getElementById('wrapper').style.display = 'none';
+            document.getElementById('loading').style.display = 'grid'; //FIXME
+            // document.getElementById('loading').style.display = 'flex'; //FIXME
+        });
+
+        myDropzone.on("success", function(file, response) {
+            console.log("File uploaded successfully: ", file.name);
+            // document.getElementById('spinner').style.display = 'none';
+            document.getElementById('download-btn').style.display = 'block';
+            document.getElementById('loading').style.display = 'none'; //FIXME
+
+            if (response.messages) {
+                displayFlashMessages(response.messages);
+            }
+            // document.getElementById('wrapper').style.display = 'grid';
+
+        });
+
+        myDropzone.on("error", function(file, response) {
+            // In case of an error, response might not be properly parsed, handle accordingly
+            let messages = [];
+            if (typeof response === 'string') {
+                messages.push(response);
+            } else if (response.messages) {
+                messages = response.messages;
+            }
+            if (messages.length > 0) {
+                displayFlashMessages(messages);
+            }
+            document.getElementById('loading').style.display = 'none'; // Hide loading spinner
+        });
+
+    </script>
+{% endblock body %}

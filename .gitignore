@@ -1,0 +1,82 @@
+# Ignore node_modules folder
+node_modules/
+
+# Ignore all .log files
+*.log
+
+# Ignore compiled Python files
+*.pyc
+
+# Ignore .env file for environment variables
+/env
+.env
+
+# Ignore .venv file for environment variables
+/venv
+.venv
+
+# Ignore .vscode folder
+/.vscode
+.vscode
+
+# Ignore .DC_Store file
+.DC_Store
+.DS_Store
+
+
+# Byte-compiled / cached files
+__pycache__/
+*.py[cod]
+*.swp
+
+# Virtual environment
+venv/
+.env
+.venv/
+env/
+ENV/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Flask and Python environment variables
+instance/
+*.pyc
+*.pyo
+*.pyd
+*.db
+*.sqlite3
+
+# Logs and database files
+*.log
+*.sqlite
+db.sqlite3
+
+# IDE/editor files
+.vscode/
+.idea/
+*.iml
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Deployment files (optional)
+*.bak
+*.orig
+*.log
+
+# Gunicorn logs (if using Gunicorn)
+gunicorn_error.log
+
+# Ignore node_modules if using frontend tools
+node_modules/
+
+# Ignore compiled Python files
+*.egg-info/
+*.dist-info/
+
+*.xlsx
+*.wav
+
+# Ignore uploads folder.
+uploads/
