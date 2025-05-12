@@ -23,12 +23,12 @@ def hash_file(filepath):
     # Get the hexadecimal digest of the hash
     return sha256_hash.hexdigest()
 
-if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        # Ensure a file path is provided as a command-line argument
-        print("Usage: python script.py <filepath>")
-    else:
-        filepath = sys.argv[1]
-        file_hash = hash_file(filepath)
-        if file_hash:
-            print(f"The SHA-256 hash of the file is: {file_hash}")
+# if __name__ == "__main__":
+#     if len(sys.argv) < 2:
+#         # Ensure a file path is provided as a command-line argument
+#         print("Usage: python script.py <filepath>")
+#     else:
+#         filepath = sys.argv[1]
+#         file_hash = hash_file(filepath)
+#         if file_hash:
+#             print(f"The SHA-256 hash of the file is: {file_hash}")

@@ -11,7 +11,7 @@ sentiment_blueprint = Blueprint('sentiment', __name__)
 
 from . import routes
 
-print(f" __init__.py /app/blueprints/sentiment ")
+# print(f" __init__.py /app/blueprints/sentiment ")
 
 
 def init_sentiment(app, basedir):

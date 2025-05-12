@@ -80,3 +80,9 @@ node_modules/
 
 # Ignore uploads folder.
 uploads/
+
+# Ignore flask session folder.
+flask_session/
+
+# Ignore todo.md file
+todo.md

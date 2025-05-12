@@ -1,4 +1,4 @@
-print(f" config.py ")
+# print(f" config.py ")
 
 
 # UPLOAD_FOLDER = 'uploads'

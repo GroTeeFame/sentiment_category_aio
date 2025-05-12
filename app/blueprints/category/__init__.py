@@ -15,7 +15,7 @@ category_blueptint = Blueprint('category', __name__)
 
 from . import routes
 
-print(f" __init__.py /app/blueprints/category ")
+# print(f" __init__.py /app/blueprints/category ")
 
 
 def init_category(app, basedir):

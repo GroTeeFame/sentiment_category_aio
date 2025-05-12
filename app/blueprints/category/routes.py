@@ -42,7 +42,7 @@ LOCATION = os.getenv("SS_LOCATION")
 
 
 
-print(f" routes.py /app/blueprints/category ")
+# print(f" routes.py /app/blueprints/category ")
 
 
 # # @category_blueptint.route('/category')
@@ -86,7 +86,8 @@ try:
 
     collection = COLLECTION
 
-    print(f"{Color.BLUE} Connection with DB({Color.RED}{DB_NAME}{Color.BLUE}) was successfully established in app.py{Color.END}")
+    # print(f"{Color.BLUE} Connection with DB({Color.RED}{DB_NAME}{Color.BLUE}) was successfully established in app.py{Color.END}")
+    print(f"Connection with DB({DB_NAME}) was successfully established in app.py")
 
     # print(create_category_collection_in_db(dbh, CATEGORIES_COLLECTION, categories_for_db))
 
@@ -150,7 +151,7 @@ except Exception as e:
 # @category_blueptint.route('/category')
 @category_blueptint.route('/category')
 def category_index():
-    print(f" routes.py /app/blueprints/category category_index()")
+    # print(f" routes.py /app/blueprints/category category_index()")
     return render_template('category/category.html', title='Категоризація')
 
 
@@ -168,7 +169,7 @@ def category_index():
 
 @category_blueptint.route('/analyze', methods=['POST'])
 async def analyze():
-    print("'/analyze' route in app.py", file=sys.stderr)
+    # print("'/analyze' route in app.py", file=sys.stderr)
 
     socketio = current_app.socketio
 
@@ -177,17 +178,17 @@ async def analyze():
     if request.method == 'POST':
         results = []  # To store the results for each file
 
-        print("'/analyze' route in app.py - if request.method == 'POST':", file=sys.stderr)
+        # print("'/analyze' route in app.py - if request.method == 'POST':", file=sys.stderr)
         os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
         i = 1
 
-        print("---------------------------------------")
-        print(f"FILES COUNTS: {len(request.files)}")
-        print("---------------------------------------")
+        # print("---------------------------------------")
+        # print(f"FILES COUNTS: {len(request.files)}")
+        # print("---------------------------------------")
 
         for key, f in request.files.items():
-            print(f"i : {i}")
+            # print(f"i : {i}")
             # print(f"request.files.items() :  {request.files.items()}")
 
             # print(f"{Color.BOLD} f: {f} {Color.END}")
@@ -196,7 +197,7 @@ async def analyze():
             if key.startswith('file'):
                 socketio.emit("client_update", f"Опрацьовується доумент {i} з {len(request.files)}")
 
-                print(f"'/analyze' route in app.py - processing {key}:", file=sys.stderr)
+                # print(f"'/analyze' route in app.py - processing {key}:", file=sys.stderr)
                 unique_filename = f"uploaded_file_{uuid.uuid4()}.wav"
                 filepath = os.path.join(UPLOAD_FOLDER, unique_filename)
                 og_filename = f.filename
@@ -214,11 +215,11 @@ async def analyze():
 
                 fileInSystem = dbh.find_document(collection, {"_id": fileHash})
                 if use_hash_flag:
-                    print(f"{Color.YELLOW} use_hash_flag = TRUE {Color.END}")
+                    # print(f"{Color.YELLOW} use_hash_flag = TRUE {Color.END}")
                     if fileInSystem is None:
                         print(f"New file in system, start processing file...")
                         result = compose_file_process(dbh, og_filename, filepath, fileHash, collection, CATEGORIES_COLLECTION)
-                        print(f"result: {result}")
+                        # print(f"result: {result}")
                     else:
                         result = fileInSystem
                         # TODO: delete time.sleep() its only for testing. <
@@ -227,27 +228,28 @@ async def analyze():
                         # print("time.sleep(3)")
                         # TODO: delete time.sleep() its only for testing. >
 
-                        print(f"--- Result from DB for file: '{filepath}' with hash (_id in db): '{fileHash}' ---")
-                        print(fileInSystem)
+                        # print(f"--- Result from DB for file: '{filepath}' with hash (_id in db): '{fileHash}' ---")
+                        # print(fileInSystem)
                 else:
-                    print(f"{Color.YELLOW} use_hash_flag = FALSE {Color.END}")
+                    # print(f"{Color.YELLOW} use_hash_flag = FALSE {Color.END}")
                     result = compose_file_process(dbh, filepath, fileHash, collection, CATEGORIES_COLLECTION)
-                    print(f"result: {result}")
+                    # print(f"result: {result}")
 
                 results.append(result)
 
                 try:
                     os.remove(filepath)
-                    print(f"{Color.PURPLE} {filepath} file was successfully deleted from system.{Color.END}")
+                    # print(f"{Color.PURPLE} {filepath} file was successfully deleted from system.{Color.END}")
                 except Exception as e:
-                    print(f"{Color.RED} ERROR: can't delete {filepath} from system. Details: {e} {Color.END}")
+                    # print(f"{Color.RED} ERROR: can't delete {filepath} from system. Details: {e} {Color.END}")
+                    print(f"ERROR: can't delete {filepath} from system. Details: {e}")
 
             i += 1
 
-        print("===============================")
-        print(f"{Color.BLUE}results: {results} {Color.END}")
-        print(f"{Color.GREEN} length of results: {len(results)} {Color.END}")
-        print("===============================")
+        # print("===============================")
+        # print(f"{Color.BLUE}results: {results} {Color.END}")
+        # print(f"{Color.GREEN} length of results: {len(results)} {Color.END}")
+        # print("===============================")
 
         # Session['documents'] = results
         session['documents'] = results
@@ -270,7 +272,7 @@ async def analyze():
 
 @category_blueptint.route('/newcategory')
 def newcategory():
-    print("'/newcategory' route in app.py", file=sys.stderr)
+    # print("'/newcategory' route in app.py", file=sys.stderr)
 
     socketio = current_app.socketio
 
@@ -278,24 +280,24 @@ def newcategory():
 
 
     categories = get_list_of_categories_from_db(dbh, CATEGORIES_COLLECTION)
-    print(f"{Color.BRIGHT_CYAN}categories = {categories} {Color.END}")
+    # print(f"{Color.BRIGHT_CYAN}categories = {categories} {Color.END}")
     session['categories_from_db'] = categories
     return render_template('category/newcategory.html', title="Нові категорії", categories=categories)
 
 
 @category_blueptint.route('/submit-dates', methods=['POST'])
 def submit_dates():
-    print("'/submit' route in app.py", file=sys.stderr)
+    # print("'/submit' route in app.py", file=sys.stderr)
 
     socketio = current_app.socketio
 
     socketio.emit("newcategory", f"@app.route('/submit-dates', methods=['POST'])")
 
     categories_from_db = session.get('categories_from_db')
-    print(f"categories_from_db from session : {categories_from_db}")
+    # print(f"categories_from_db from session : {categories_from_db}")
     if not categories_from_db:
         categories_from_db = get_list_of_categories_from_db(dbh, CATEGORIES_COLLECTION)
-        print(f"categories_from_db from DB : {categories_from_db}")
+        # print(f"categories_from_db from DB : {categories_from_db}")
 
 
     # categories = get_list_of_categories_from_db(dbh, CATEGORIES_COLLECTION)
@@ -311,43 +313,43 @@ def submit_dates():
     # Perform database operations using the start_date and end_date
     data_with_potencial_new_category = get_potential_category_by_dates(dbh, COLLECTION, start_date, end_date)
 
-    print(f"data_with_potencial_new_category")
-    print(data_with_potencial_new_category)
-    print("1111111111111111111111111111111")
+    # print(f"data_with_potencial_new_category")
+    # print(data_with_potencial_new_category)
+    # print("1111111111111111111111111111111")
 
     # TODO: compose_document_update()!!! - hueta...
 
     if not data_with_potencial_new_category:
         return render_template('category/updated_info.html', combined_data=[], date_obj=date_obj)
 
-    print("---------------------------------")
-    print("get_potential_category_by_dates:")
-    print(data_with_potencial_new_category)
-    print("---------------------------------")
+    # print("---------------------------------")
+    # print("get_potential_category_by_dates:")
+    # print(data_with_potencial_new_category)
+    # print("---------------------------------")
 
     potencial_new_category = [doc['potential_new_category'] for doc in data_with_potencial_new_category]
 
-    print("---------------------------------")
-    print("potencial_new_category:")
-    print(f"{Color.CYAN}{potencial_new_category}{Color.END}")
-    print("---------------------------------")
+    # print("---------------------------------")
+    # print("potencial_new_category:")
+    # print(f"{Color.CYAN}{potencial_new_category}{Color.END}")
+    # print("---------------------------------")
 
     # classifyed_potential_categories = classify_categories_with_gpt(data_with_potencial_new_category)
     classifyed_potential_categories = classify_categories_with_gpt(potencial_new_category)
 
-    print("---------------------------------")
-    print("classify_categories_with_gpt in submit_dates route:")
-    print(f"{Color.CYAN}{classifyed_potential_categories}{Color.END}")
-    print("---------------------------------")
+    # print("---------------------------------")
+    # print("classify_categories_with_gpt in submit_dates route:")
+    # print(f"{Color.CYAN}{classifyed_potential_categories}{Color.END}")
+    # print("---------------------------------")
 
-    print("===PLAY WITH classifyed_potential_categories =============<")
-    for key, values in classifyed_potential_categories.items():
-        print(f"Key: {key}")
-        for value in values:
-            print(f"  ╰─Value: {value}")
+    # print("===PLAY WITH classifyed_potential_categories =============<")
+    # for key, values in classifyed_potential_categories.items():
+    #     print(f"Key: {key}")
+    #     for value in values:
+    #         print(f"  ╰─Value: {value}")
     # for doc in classifyed_potential_categories:
     #     print(doc)
-    print("===PLAY WITH classifyed_potential_categories =============>")
+    # print("===PLAY WITH classifyed_potential_categories =============>")
 
     combined_data = {}
 
@@ -358,10 +360,10 @@ def submit_dates():
         ]
         combined_data[key] = matched_dicts
 
-    print("---------------------------------")
-    print("combined_data in submit_dates route:")
-    print(f"{Color.BRIGHT_BLUE}{combined_data}{Color.END}")
-    print("---------------------------------")
+    # print("---------------------------------")
+    # print("combined_data in submit_dates route:")
+    # print(f"{Color.BRIGHT_BLUE}{combined_data}{Color.END}")
+    # print("---------------------------------")
 
     session['combined_data'] = combined_data
 
@@ -386,9 +388,9 @@ def get_category_data():
 
     data_to_return = combined_data[key]
 
-    print(f"{Color.BG_BRIGHT_BLUE}key: {key} {Color.END}")
-    print(f"{Color.BG_CYAN}combined_data: {combined_data} {Color.END}")
-    print(f"{Color.BG_BRIGHT_GREEN}data_to_return: {data_to_return} {Color.END}")
+    # print(f"{Color.BG_BRIGHT_BLUE}key: {key} {Color.END}")
+    # print(f"{Color.BG_CYAN}combined_data: {combined_data} {Color.END}")
+    # print(f"{Color.BG_BRIGHT_GREEN}data_to_return: {data_to_return} {Color.END}")
 
 
     
@@ -400,23 +402,23 @@ def get_category_data():
 
 @category_blueptint.route('/create_new_category')
 def create_new_category():
-    print("inside create_new_category(): route +++++++++++++++++++++++++++")
+    # print("inside create_new_category(): route +++++++++++++++++++++++++++")
     new_category = request.args.get('key')
 
-    print(f"new_category : {new_category}")
+    # print(f"new_category : {new_category}")
 
     combined_data = session.get('combined_data')
 
-    print(f"combined_data : {combined_data}")
+    # print(f"combined_data : {combined_data}")
 
 
     data_to_update = combined_data[new_category]
 
-    print(f"inside - create_new_category() <")
-    print(f"{Color.BRIGHT_BLUE}new_category: {new_category} {Color.END}")
-    print(f"{Color.CYAN}combined_data: {combined_data} {Color.END}")
-    print(f"{Color.BRIGHT_GREEN}data_to_update: {data_to_update} {Color.END}")
-    print(f"inside - create_new_category() >")
+    # print(f"inside - create_new_category() <")
+    # print(f"{Color.BRIGHT_BLUE}new_category: {new_category} {Color.END}")
+    # print(f"{Color.CYAN}combined_data: {combined_data} {Color.END}")
+    # print(f"{Color.BRIGHT_GREEN}data_to_update: {data_to_update} {Color.END}")
+    # print(f"inside - create_new_category() >")
 
     # update_potential_category_by_id,
     # create_category_collection_in_db,
@@ -424,15 +426,15 @@ def create_new_category():
 
     update_documents_confirmation = []
 
-    print(f"{Color.BG_BRIGHT_WHITE} -------------------------------- {Color.END}")
-    print(f"updated_documents :")
+    # print(f"{Color.BG_BRIGHT_WHITE} -------------------------------- {Color.END}")
+    # print(f"updated_documents :")
     for doc in updated_documents:
-        print(doc)
-        print('=============')
+        # print(doc)
+        # print('=============')
         if doc.modified_count > 0:
         # if doc['nModified'] > 0:
             update_documents_confirmation.append(True)
-    print(f"{Color.BG_BRIGHT_WHITE} -------------------------------- {Color.END}")
+    # print(f"{Color.BG_BRIGHT_WHITE} -------------------------------- {Color.END}")
 
 
 
@@ -446,12 +448,12 @@ def create_new_category():
 
 
     if new_category not in categories_in_db:
-        print(f"New category({new_category}) are NOT in category collection in DB")
-        print(f"{Color.GREEN} Creating new category in db... {Color.END}")
+        # print(f"New category({new_category}) are NOT in category collection in DB")
+        # print(f"{Color.GREEN} Creating new category in db... {Color.END}")
         new_category_id = create_category_collection_in_db(dbh, CATEGORIES_COLLECTION, [new_category])
-        print(f"{Color.BG_BRIGHT_GREEN} -------------------------------- {Color.END}")
-        print(f"new_category_id : {new_category_id}")
-        print(f"{Color.BG_BRIGHT_GREEN} -------------------------------- {Color.END}")
+        # print(f"{Color.BG_BRIGHT_GREEN} -------------------------------- {Color.END}")
+        # print(f"new_category_id : {new_category_id}")
+        # print(f"{Color.BG_BRIGHT_GREEN} -------------------------------- {Color.END}")
 
     # response_data = {
     #     "new_category_id" : new_category_id,
@@ -479,37 +481,37 @@ def create_new_category():
 
 @category_blueptint.route('/abandon_category')
 def abandon_category():
-    print("inside abandon_category(): route ----------------------")
+    # print("inside abandon_category(): route ----------------------")
 
     new_category = request.args.get('key')
 
-    print(f"new_category : {new_category}")
+    # print(f"new_category : {new_category}")
 
     combined_data = session.get('combined_data')
 
-    print(f"combined_data : {combined_data}")
+    # print(f"combined_data : {combined_data}")
 
     data_to_update = combined_data[new_category]
 
-    print(f"inside - create_new_category() <")
-    print(f"{Color.BRIGHT_BLUE}new_category: {new_category} {Color.END}")
-    print(f"{Color.CYAN}combined_data: {combined_data} {Color.END}")
-    print(f"{Color.BRIGHT_GREEN}data_to_update: {data_to_update} {Color.END}")
-    print(f"inside - create_new_category() >")
+    # print(f"inside - create_new_category() <")
+    # print(f"{Color.BRIGHT_BLUE}new_category: {new_category} {Color.END}")
+    # print(f"{Color.CYAN}combined_data: {combined_data} {Color.END}")
+    # print(f"{Color.BRIGHT_GREEN}data_to_update: {data_to_update} {Color.END}")
+    # print(f"inside - create_new_category() >")
 
     updated_documents = abandon_potential_category_by_id(dbh, data_to_update, COLLECTION)    
 
     update_documents_confirmation = []
 
-    print(f"{Color.BG_BRIGHT_WHITE} -------------------------------- {Color.END}")
-    print(f"updated_documents :")
+    # print(f"{Color.BG_BRIGHT_WHITE} -------------------------------- {Color.END}")
+    # print(f"updated_documents :")
     for doc in updated_documents:
-        print(doc)
-        print('=============')
+        # print(doc)
+        # print('=============')
         if doc.modified_count > 0:
         # if doc['nModified'] > 0:
             update_documents_confirmation.append(True)
-    print(f"{Color.BG_BRIGHT_WHITE} -------------------------------- {Color.END}")
+    # print(f"{Color.BG_BRIGHT_WHITE} -------------------------------- {Color.END}")
 
     if False not in update_documents_confirmation:
         is_documents_updated = True
@@ -538,12 +540,12 @@ def abandon_category():
 
 @category_blueptint.route('/download-category', methods=['GET'])
 def download_category():
-    print("/download route in app.py", file=sys.stderr)
+    # print("/download route in app.py", file=sys.stderr)
 
     documents = session.get('documents')
-    print('<<<----------------------------------------------->>>')
-    print(f"{Color.YELLOW}documents: {documents} {Color.END}")
-    print('<<<----------------------------------------------->>>')
+    # print('<<<----------------------------------------------->>>')
+    # print(f"{Color.YELLOW}documents: {documents} {Color.END}")
+    # print('<<<----------------------------------------------->>>')
 
 
     xlsx_filename = f"AI_results.xlsx"

@@ -18,14 +18,14 @@ print(f" routes.py /app/blueprints/category ")
 
 @sentiment_blueprint.route('/sentiment')
 def sentiment_index():
-    print(f" routes.py /app/blueprints/category sentiment_index()")
+    # print(f" routes.py /app/blueprints/category sentiment_index()")
     return render_template('sentiment/sentiment.html', title='Сентимент')
 
 
 
 @sentiment_blueprint.route('/analyze-sentiment', methods=['POST'])
 async def analyze_sentiment():
-    print("'/analyze' route in app.py", file=sys.stderr)
+    # print("'/analyze' route in app.py", file=sys.stderr)
     # app.logging.info("'/analyze' route in app.py")
     flash("'/analyze' route in app.py")
 
@@ -36,7 +36,7 @@ async def analyze_sentiment():
 
     if request.method == 'POST':
         # print("----------------------------------", file=sys.stderr)
-        print("'/analyze' route in app.py - if request.method == 'POST':", file=sys.stderr)
+        # print("'/analyze' route in app.py - if request.method == 'POST':", file=sys.stderr)
         logging.info("'/analyze' route in app.py - if request.method == 'POST':")
         # app.logging.info("'/analyze' route in app.py - if request.method == 'POST':")
         for key, f in request.files.items():
@@ -53,7 +53,7 @@ async def analyze_sentiment():
 
     messages = []
     try:
-        print("'/analyze' trying to make call to API:", file=sys.stderr)
+        # print("'/analyze' trying to make call to API:", file=sys.stderr)
         logging.info("'/analyze' trying to make call to API:")
         # app.logging.info("'/analyze' trying to make call to API:")
         with open(filepath, 'rb') as f:
@@ -93,24 +93,24 @@ async def analyze_sentiment():
 
 @sentiment_blueprint.route('/download-sentiment', methods=['GET'])
 def download_sentiment():
-    print("/download route in app.py", file=sys.stderr)
+    # print("/download route in app.py", file=sys.stderr)
     logging.info("/download route in app.py")
     # app.logging.info("/download route in app.py")
 
     uploaded_filepath = session.get('uploaded_filepath')
     orchestrated_filepath = session.get('orchestrated_filepath')
     filename = session.get('filename')
-    print(f"filename in '/download': {filename}", file=sys.stderr)
+    # print(f"filename in '/download': {filename}", file=sys.stderr)
     logging.info(f"filename in '/download': {filename}")
     # app.logging.info(f"filename in '/download': {filename}")
-    print(f"orchestrated_filepath in '/download': {orchestrated_filepath}", file=sys.stderr)
+    # print(f"orchestrated_filepath in '/download': {orchestrated_filepath}", file=sys.stderr)
     logging.info(f"orchestrated_filepath in '/download': {orchestrated_filepath}")
     # app.logging.info(f"orchestrated_filepath in '/download': {orchestrated_filepath}")
 
     file_to_send = orchestrated_filepath
 
     file_to_send = os.path.join('/Users/rostislavzubenko/Work/CC AI/combine_sent_cat_aio/', orchestrated_filepath)
-    print(f"!!!   ----- file_to_send: {file_to_send}")
+    # print(f"!!!   ----- file_to_send: {file_to_send}")
 
 
     # application_root = os.path.dirname('uploads')
@@ -118,7 +118,7 @@ def download_sentiment():
 
     # print(f"application_root: {application_root}")
     # print(f"uploads_dir: {uploads_dir}")
-    print(f"orchestrated_filepath: {orchestrated_filepath}")
+    # print(f"orchestrated_filepath: {orchestrated_filepath}")
     # print(f"basedir: {basedir}")
 
     response = send_file(
@@ -129,7 +129,7 @@ def download_sentiment():
         mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     )
 
-    print('------deleting orchestrated_filepath------', file=sys.stderr)
+    # print('------deleting orchestrated_filepath------', file=sys.stderr)
     logging.info('------deleting orchestrated_filepath------')
     # app.logging.info('------deleting orchestrated_filepath------')
     os.remove(orchestrated_filepath)

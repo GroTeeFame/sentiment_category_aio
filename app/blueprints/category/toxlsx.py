@@ -4,15 +4,15 @@ import logging
 
 
 def create_document_xlsx(documents, output_path):
-    print("create_document_xlsx() in toxlsx.py")
+    # print("create_document_xlsx() in toxlsx.py")
 
-    print(f"Documents: {documents}")
-    print(f"Documents len: {len(documents)}")
+    # print(f"Documents: {documents}")
+    # print(f"Documents len: {len(documents)}")
 
     wb = Workbook()
     ws = wb.active
 
-    print(f"documents in toxlsx.py: {documents}")
+    # print(f"documents in toxlsx.py: {documents}")
 
     # headers = list(documents[0].keys())
     # print("----------------")
@@ -64,9 +64,9 @@ def create_document_xlsx(documents, output_path):
     # Save the workbook
     try:
         wb.save(output_path)
-        print(f"File saved to {output_path}")
+        # print(f"File saved to {output_path}")
     except Exception as e:
-        print("Error saving the workbook: %s", e)
+        # print("Error saving the workbook: %s", e)
         logging.error("Error saving the workbook: %s", e)
         raise Exception("Error saving the Excel file")
 
