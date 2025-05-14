@@ -22,4 +22,4 @@ def index():
 # Run the application
 if __name__ == '__main__':
     # print(f" run.py ")
-    app.run(debug=True, host='0.0.0.0', port=22000)
+    app.run(debug=True, host='0.0.0.0', port=20000)
