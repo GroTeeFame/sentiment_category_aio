@@ -13,7 +13,7 @@ from app.config import Config
 
 
 
-print(f" routes.py /app/blueprints/category ")
+# print(f" routes.py /app/blueprints/category ")
 
 
 @sentiment_blueprint.route('/sentiment')
