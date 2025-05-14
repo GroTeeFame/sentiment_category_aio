@@ -19,6 +19,7 @@ print(f" routes.py /app/blueprints/category ")
 @sentiment_blueprint.route('/sentiment')
 def sentiment_index():
     # print(f" routes.py /app/blueprints/category sentiment_index()")
+    logging.info(f" routes.py /app/blueprints/category sentiment_index()")
     return render_template('sentiment/sentiment.html', title='Сентимент')
 
 
@@ -26,8 +27,9 @@ def sentiment_index():
 @sentiment_blueprint.route('/analyze-sentiment', methods=['POST'])
 async def analyze_sentiment():
     # print("'/analyze' route in app.py", file=sys.stderr)
+    logging.info("'/analyze' route in routes.py sentiment blueprint", file=sys.stderr)
     # app.logging.info("'/analyze' route in app.py")
-    flash("'/analyze' route in app.py")
+    # flash("'/analyze' route in app.py")
 
     unique_filename = f"uploaded_file_{uuid.uuid4()}.xlsx"
     filepath = os.path.join(Config.UPLOAD_FOLDER, unique_filename)
@@ -37,7 +39,7 @@ async def analyze_sentiment():
     if request.method == 'POST':
         # print("----------------------------------", file=sys.stderr)
         # print("'/analyze' route in app.py - if request.method == 'POST':", file=sys.stderr)
-        logging.info("'/analyze' route in app.py - if request.method == 'POST':")
+        logging.info("'/analyze' route in routes.py sentiment blueprint - if request.method == 'POST':")
         # app.logging.info("'/analyze' route in app.py - if request.method == 'POST':")
         for key, f in request.files.items():
             if key.startswith('file'):
@@ -107,9 +109,12 @@ def download_sentiment():
     logging.info(f"orchestrated_filepath in '/download': {orchestrated_filepath}")
     # app.logging.info(f"orchestrated_filepath in '/download': {orchestrated_filepath}")
 
-    file_to_send = orchestrated_filepath
+    # file_to_send = orchestrated_filepath
 
-    file_to_send = os.path.join('/Users/rostislavzubenko/Work/CC AI/combine_sent_cat_aio/', orchestrated_filepath)
+    # file_to_send = os.path.join('/Users/rostislavzubenko/Work/CC AI/combine_sent_cat_aio/', orchestrated_filepath)
+    
+    file_to_send = os.path.join('/home/P-RZuben10302/flask/sentiment_category_aio', orchestrated_filepath)
+    
     # print(f"!!!   ----- file_to_send: {file_to_send}")
 
 

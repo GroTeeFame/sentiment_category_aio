@@ -1,6 +1,7 @@
 from flask import Blueprint
 import os
 from flask_dropzone import Dropzone
+import logging
 
 # from config import ( UPLOAD_FOLDER )
 
@@ -12,6 +13,7 @@ sentiment_blueprint = Blueprint('sentiment', __name__)
 from . import routes
 
 # print(f" __init__.py /app/blueprints/sentiment ")
+logging.info(f" __init__.py /app/blueprints/sentiment ")
 
 
 def init_sentiment(app, basedir):

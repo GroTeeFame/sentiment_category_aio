@@ -3,6 +3,7 @@ import os
 import sys
 import time
 import json
+import logging
 from datetime import datetime
 from dotenv import load_dotenv
 from openai import AzureOpenAI
@@ -86,17 +87,20 @@ def process_azure_standard(filename):
             txt = evt.result.text.strip()
             all_texts.append(txt)
             # print(f"Розпізнано: {txt}")
+            logging.info(f"Розпізнано: {txt}")
 
     def handle_canceled(evt):
         if evt.reason == speechsdk.CancellationReason.Error:
             log_lines.append(f"⚠️ Azure STT Cancelled: {evt.error_details}")
             # print(f"Azure STT Cancelled: {evt.error_details}")
+            logging.info(f"Azure STT Cancelled: {evt.error_details}")
 
     def stop_cb(evt):
         nonlocal done
         done = True
         log_lines.append("🛑 Сесія розпізнавання завершена.")
         # print("Сесія розпізнавання завершена.")
+        logging.info("Сесія розпізнавання завершена.")
 
     recognizer.recognized.connect(handle_recognized)
     recognizer.canceled.connect(handle_canceled)
@@ -104,6 +108,7 @@ def process_azure_standard(filename):
 
     log_lines.append("▶️ Початок розпізнавання (асинхронно)...")
     # print("Початок розпізнавання (асинхронно)...")
+    logging.info("Початок розпізнавання (асинхронно)...")
     recognizer.start_continuous_recognition_async().get()
 
     while not done:
@@ -116,14 +121,20 @@ def process_azure_standard(filename):
     aggregated_text = " ".join(all_texts).strip()
     log_lines.append(f"🎤 Розпізнано (загалом): {aggregated_text}")
     # print(f"Розпізнано (загалом): {aggregated_text}")
+    logging.info(f"Розпізнано (загалом): {aggregated_text}")
 
     out_name = filename.replace(".wav", "-azure.txt")
     log_lines.append("✅ Розпізнавання Azure завершено успішно.")
     # print("Розпізнавання Azure завершено успішно.")
+    logging.info("Розпізнавання Azure завершено успішно.")
     # print("------PRINTING LOGS:----------------------------------------------------")
     # for log in log_lines:
     #     print(log)
     # print("------------------------------------------------------------------------")
+    logging.info("------PRINTING LOGS:----------------------------------------------------")
+    for log in log_lines:
+        logging.info(log)
+    logging.info("------------------------------------------------------------------------")
 
     return aggregated_text
 
@@ -147,6 +158,7 @@ def get_category_from_gpt(text):
     )
 
     # print(response.choices[0].message.content)
+    logging.info(response.choices[0].message.content)
 
     return response.choices[0].message.content
 
@@ -161,6 +173,7 @@ def classify_categories_with_gpt(categories):
         dict | None: A dictionary of classified categories or None on error.
     """
     # print(f"--> classify_categories_with_gpt() -->")
+    logging.info(f"--> classify_categories_with_gpt() -->")
     client = AzureOpenAI(
         azure_endpoint = os.getenv("GPT_ENDPOINT"), 
         api_key = os.getenv("GPT_KEY"),  
@@ -174,6 +187,11 @@ def classify_categories_with_gpt(categories):
         # print("------------------------------")
         # print(f"CATEGORIES: {Color.PURPLE}{categories}{Color.END}")
         # print("------------------------------")
+        logging.info(f"CLASSIFY_CATEGORIES_WITH_GPT_PROMPT: ---")
+        logging.info(CLASSIFY_CATEGORIES_WITH_GPT_PROMPT)
+        logging.info("------------------------------")
+        logging.info(f"CATEGORIES: {Color.PURPLE}{categories}{Color.END}")
+        logging.info("------------------------------")
         response = client.chat.completions.create(
             model="gpt-4o-ub-test-080624", # model = "deployment_name".
             messages=[
@@ -189,8 +207,12 @@ def classify_categories_with_gpt(categories):
         # print('-response.choices[0].message.content---------------------------------')
         # print(response.choices[0].message.content)
         # print('----------------------------------')
+        logging.info('-response.choices[0].message.content---------------------------------')
+        logging.info(response.choices[0].message.content)
+        logging.info('----------------------------------')
     except Exception as e:
         print(f"⚠️ ERROR: Error with connecting to GPT: {e}")
+        logging.info(f"⚠️ ERROR: Error with connecting to GPT: {e}")
         return None
 
     # print("=======================================")
@@ -201,6 +223,14 @@ def classify_categories_with_gpt(categories):
     # print("response.choices[0].message.content[8:-3] :")
     # print(response.choices[0].message.content[8:-3])
     # print("=======================================")
+    logging.info("=======================================")
+    logging.info(f"Fresh from GPT: ")
+    logging.info("response.choices[0].message.content :")
+    logging.info(response.choices[0].message.content)
+    logging.info("=======================================")
+    logging.info("response.choices[0].message.content[8:-3] :")
+    logging.info(response.choices[0].message.content[8:-3])
+    logging.info("=======================================")
 
     try:
         json_data = f"""{response.choices[0].message.content[8:-3]}"""
@@ -247,6 +277,7 @@ def get_category_from_gpt_with_repetition(dbh, CATEGORIES_COLLECTION, text, repe
         dict: The most frequent category results.
     """
     # print(f"--> get_category_from_gpt_with_repetition() -->")
+    logging.info(f"--> get_category_from_gpt_with_repetition() -->")
     client = AzureOpenAI(
         azure_endpoint = os.getenv("GPT_ENDPOINT"), 
         api_key = os.getenv("GPT_KEY"),  
@@ -260,10 +291,12 @@ def get_category_from_gpt_with_repetition(dbh, CATEGORIES_COLLECTION, text, repe
         except Exception as e:
             # print(f"{Color.RED}⚠️ ERROR: {e} {Color.END}")
             print(f"⚠️ ERROR: {e}")
+            logging.info(f"⚠️ ERROR: {e}")
             raise e #TODO: #FIXME: bad error handling!!!! 
         if categories_collection_ids:
             # print(f"{Color.GREEN} Collection of categories was successfully created in DB. Categories ids: {categories_collection_ids}{Color.END}")
             print(f" Collection of categories was successfully created in DB. Categories ids: {categories_collection_ids}")
+            logging.info(f" Collection of categories was successfully created in DB. Categories ids: {categories_collection_ids}")
         else:
             raise ValueError("Data needed for file processing NOT found in DB...")
 
@@ -273,11 +306,17 @@ def get_category_from_gpt_with_repetition(dbh, CATEGORIES_COLLECTION, text, repe
     # print(f"=====conversation_categories==========")
     # print(f"{conversation_categories}")
     # print("----------TEST_PROMPT------------------<")
+    logging.info("----------TEST_PROMPT------------------>")
+    logging.info(f"{GET_CATEGORY_FROM_GPT_PROMPT}")
+    logging.info(f"=====conversation_categories==========")
+    logging.info(f"{conversation_categories}")
+    logging.info("----------TEST_PROMPT------------------<")
 
     aggregated_responce = []
 
     for i in range(1, repetition+1):
         # print(f"Repetition {i}...")
+        logging.info(f"Repetition {i}...")
         try:
             response = client.chat.completions.create(
                 model="gpt-4o-ub-test-080624", # model = "deployment_name".
@@ -294,6 +333,7 @@ def get_category_from_gpt_with_repetition(dbh, CATEGORIES_COLLECTION, text, repe
             )
         except Exception as e:
             print(f"⚠️ ERROR: arouse an error with connecting to GPT: {e}")
+            logging.info(f"⚠️ ERROR: arouse an error with connecting to GPT: {e}")
         try:
             json_gpt_category = json.loads(response.choices[0].message.content[8:-3])
             aggregated_responce.append({
@@ -302,6 +342,7 @@ def get_category_from_gpt_with_repetition(dbh, CATEGORIES_COLLECTION, text, repe
             })
         except Exception as e:
             print(f"⚠️ ERROR: arouse an error with converting GPT response to json: {e}")
+            logging.info(f"⚠️ ERROR: arouse an error with converting GPT response to json: {e}")
 
     aggregated_category_from_list = [i["category_from_list"] for i in aggregated_responce]
     aggregated_potential_category = [i["potential_category"] for i in aggregated_responce]
@@ -310,6 +351,10 @@ def get_category_from_gpt_with_repetition(dbh, CATEGORIES_COLLECTION, text, repe
     # print(aggregated_category_from_list)
     # print(aggregated_potential_category)
     # print('--------------------------------')
+    logging.info(f"logging.infoing results from GPT:")
+    logging.info(aggregated_category_from_list)
+    logging.info(aggregated_potential_category)
+    logging.info('--------------------------------')
 
     sorted_aggregated_category_from_list = sorted(aggregated_category_from_list, key=Counter(aggregated_category_from_list).get, reverse=True)
     sorted_aggregated_potential_category = sorted(aggregated_potential_category, key=Counter(aggregated_potential_category).get, reverse=True)
@@ -348,7 +393,13 @@ def create_category_collection_in_db(dbh, collection, categories):
             print(f"⚠️ category: {category}")
             print(f"⚠️ more details: {e}")
             print('-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!')
+            logging.info('-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!')
+            logging.info(f"⚠️ ERROR: when trying to create a category document occur an error: ")
+            logging.info(f"⚠️ category: {category}")
+            logging.info(f"⚠️ more details: {e}")
+            logging.info('-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!')
     print(f"inserted_doc_ids: {inserted_doc_ids}")
+    logging.info(f"inserted_doc_ids: {inserted_doc_ids}")
     return inserted_doc_ids
 
 def get_list_of_categories_from_db(dbh, collection):
@@ -368,6 +419,10 @@ def get_list_of_categories_from_db(dbh, collection):
         print(f"⚠️ ERROR: when trying to get categories from DB: ")
         print(f"⚠️ more details: {e}")
         print('-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!')
+        logging.info('-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!')
+        logging.info(f"⚠️ ERROR: when trying to get categories from DB: ")
+        logging.info(f"⚠️ more details: {e}")
+        logging.info('-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!')
         return []
 
     for doc in result:
@@ -418,6 +473,9 @@ def abandon_potential_category_by_id(dbh, documents_to_update, collection):
         # print('--document------------------------->')
         # print(document)
         # print('---------------------------<')
+        logging.info('--document------------------------->')
+        logging.info(document)
+        logging.info('---------------------------<')
         # new_category = [key for key, values in new_categories.items() if document['potential_new_category'] in values]
         update_values = {
             "potential_new_category": "Null"
@@ -427,6 +485,9 @@ def abandon_potential_category_by_id(dbh, documents_to_update, collection):
             # print('-- Updated Document ------------------------->')
             # print(upd_doc)
             # print('---------------------------<')
+            logging.info('-- Updated Document ------------------------->')
+            logging.info(upd_doc)
+            logging.info('---------------------------<')
             # return upd_doc
         except Exception as e:
             print('-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!')
@@ -435,11 +496,20 @@ def abandon_potential_category_by_id(dbh, documents_to_update, collection):
             print(f"⚠️ update_values: {update_values}")
             print(f"⚠️ more details: {e}")
             print('-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!')
+            logging.info('-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!')
+            logging.info(f"⚠️ ERROR: when trying to update a document occur an error: ")
+            logging.info(f"⚠️ document: {document}")
+            logging.info(f"⚠️ update_values: {update_values}")
+            logging.info(f"⚠️ more details: {e}")
+            logging.info('-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!')
 
 
         # print('--upd_doc------------------------->')
         # print(upd_doc)
         # print('---------------------------<')
+        logging.info('--upd_doc------------------------->')
+        logging.info(upd_doc)
+        logging.info('---------------------------<')
         updated_documents.append(upd_doc)
         
     return updated_documents
@@ -457,6 +527,9 @@ def update_potential_category_by_id(dbh, documents_to_update, new_category, coll
         # print('--document------------------------->')
         # print(document)
         # print('---------------------------<')
+        logging.info('--document------------------------->')
+        logging.info(document)
+        logging.info('---------------------------<')
         # new_category = [key for key, values in new_categories.items() if document['potential_new_category'] in values]
         update_values = {
             "category": new_category,
@@ -467,6 +540,9 @@ def update_potential_category_by_id(dbh, documents_to_update, new_category, coll
             # print('-- Updated Document ------------------------->')
             # print(upd_doc)
             # print('---------------------------<')
+            logging.info('-- Updated Document ------------------------->')
+            logging.info(upd_doc)
+            logging.info('---------------------------<')
             # return upd_doc
         except Exception as e:
             print('-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!')
@@ -475,11 +551,20 @@ def update_potential_category_by_id(dbh, documents_to_update, new_category, coll
             print(f"⚠️ update_values: {update_values}")
             print(f"⚠️ more details: {e}")
             print('-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!')
+            logging.info('-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!')
+            logging.info(f"⚠️ ERROR: when trying to update a document occur an error: ")
+            logging.info(f"⚠️ document: {document}")
+            logging.info(f"⚠️ update_values: {update_values}")
+            logging.info(f"⚠️ more details: {e}")
+            logging.info('-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!-!')
 
 
         # print('--upd_doc------------------------->')
         # print(upd_doc)
         # print('---------------------------<')
+        logging.info('--upd_doc------------------------->')
+        logging.info(upd_doc)
+        logging.info('---------------------------<')
         updated_documents.append(upd_doc)
         
     return updated_documents
@@ -539,15 +624,25 @@ def compose_document_update(start_date, end_date):
     # print("potential_new_category:")
     # print(potencial_new_category)
     # print("-------------------///")
+    logging.info("potential_new_category:")
+    logging.info(potencial_new_category)
+    logging.info("-------------------///")
     potencial_new_category_list = [i["potential_new_category"] for i in potencial_new_category]
     new_categorys = classify_categories_with_gpt(potencial_new_category_list)
     # print("aggregated new_category:")
     # print(new_categorys)
+    logging.info("aggregated new_category:")
+    logging.info(new_categorys)
     # for key, values in new_categorys.items():
     #     print(f"Key: {key}")
     #     for value in values:
     #         print(f"  ╰─Value: {value}")
     # print("-------------------///")
+    for key, values in new_categorys.items():
+        logging.info(f"Key: {key}")
+        for value in values:
+            logging.info(f"  ╰─Value: {value}")
+    logging.info("-------------------///")
 
     update_potential_category_by_id(potencial_new_category, new_categorys)
 
@@ -588,10 +683,13 @@ def compose_file_process(dbh, fileName, filePath, fileHash, collection, CATEGORI
         # document = dbh.get_document_template(fileHash, filePath, rec_text, gpt_category["category_from_list"], gpt_category["potential_category"])
         document = dbh.get_document_template(fileHash, fileName, rec_text, gpt_category["category_from_list"], gpt_category["potential_category"])
         # print(document)
+        logging.info(document)
         inserted_doc_id = dbh.insert_document(collection, document)
         print(f"ID of inserted document is : {inserted_doc_id}")
+        logging.info(f"ID of inserted document is : {inserted_doc_id}")
     except Exception as e:
         print(f"⚠️ Error when trying to process answers from AI, and write it to DB: {e}", file=sys.stderr)
+        logging.info(f"⚠️ Error when trying to process answers from AI, and write it to DB: {e}", file=sys.stderr)
         raise ValueError("Cant process and write data to DB.")
 
 # TODO: remove this section of code for production, its only for testing. ---<
@@ -623,12 +721,14 @@ def test_consistency(repetition, text):
     Returns:
         list: The list of categorization results from repeated GPT calls.
     """
-    print(text)
+    # print(text)
+    logging.info(text)
 
     list_of_category = []
 
     for i in range(1, repetition+1):
-        print(f"GPT call #{i}")
+        # print(f"GPT call #{i}")
+        logging.info(f"GPT call #{i}")
 
         if i < 10:
             number_for_obj = f" {i}"
@@ -644,6 +744,7 @@ def test_consistency(repetition, text):
             })
         except Exception as e:
             print(f"⚠️ ERROR: Error during GPT call or parsing response...")
+            logging.info(f"⚠️ ERROR: Error during GPT call or parsing response...")
 
     return list_of_category
 
@@ -743,7 +844,7 @@ def test_consistency(repetition, text):
 
 
 
-    pass
+    # pass
 
 
 

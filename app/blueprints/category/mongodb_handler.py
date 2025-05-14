@@ -1,3 +1,4 @@
+import logging
 from pymongo import MongoClient
 from datetime import datetime
 from bson.objectid import ObjectId
@@ -25,6 +26,8 @@ class MongoDBHandler:
         except Exception as e:
             print(f"Error converting to ObjectId: {e}")
             print(f"Error -> mongodb_handler -> find_document_by_id()")
+            logging.info(f"Error converting to ObjectId: {e}")
+            logging.info(f"Error -> mongodb_handler -> find_document_by_id()")
             return None
         return document
     
@@ -48,6 +51,8 @@ class MongoDBHandler:
     def find_documents_by_date(self, collection_name, start_date, end_date, query={}):
         # print(f"--> class MongoDBHandler, find_documents_by_date() -->")
         # print(f"C: {collection_name}, SD: {start_date}, ED: {end_date}, Q: {query}")
+        logging.info(f"--> class MongoDBHandler, find_documents_by_date() -->")
+        logging.info(f"C: {collection_name}, SD: {start_date}, ED: {end_date}, Q: {query}")
         collection = self.get_collection(collection_name)
         date_query = {
             'timestamp': {
@@ -76,6 +81,8 @@ class MongoDBHandler:
         except Exception as e:
             print(f"Error converting to ObjectId: {e}")
             print(f"Error -> mongodb_handler -> update_document_by_id()")
+            logging.info(f"Error converting to ObjectId: {e}")
+            logging.info(f"Error -> mongodb_handler -> update_document_by_id()")
 
             return None
         return document
@@ -91,6 +98,8 @@ class MongoDBHandler:
         except Exception as e:
             print(f"Error converting to ObjectId: {e}")
             print(f"Error -> mongodb_handler -> delete_document_by_id()")
+            logging.info(f"Error converting to ObjectId: {e}")
+            logging.info(f"Error -> mongodb_handler -> delete_document_by_id()")
             return None
         return document
     

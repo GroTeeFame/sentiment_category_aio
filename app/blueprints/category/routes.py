@@ -6,6 +6,7 @@ from flask import current_app
 import os
 import sys
 import uuid
+import logging
 from flask import Flask, request, Response, copy_current_request_context, send_file, render_template, session, flash, jsonify, redirect, url_for, redirect, send_from_directory, url_for
 from flask_dropzone import Dropzone
 from flask_socketio import emit
@@ -43,6 +44,7 @@ LOCATION = os.getenv("SS_LOCATION")
 
 
 # print(f" routes.py /app/blueprints/category ")
+logging.info(f" routes.py /app/blueprints/category ")
 
 
 # # @category_blueptint.route('/category')
@@ -88,6 +90,7 @@ try:
 
     # print(f"{Color.BLUE} Connection with DB({Color.RED}{DB_NAME}{Color.BLUE}) was successfully established in app.py{Color.END}")
     print(f"Connection with DB({DB_NAME}) was successfully established in app.py")
+    logging.info(f"Connection with DB({DB_NAME}) was successfully established in app.py")
 
     # print(create_category_collection_in_db(dbh, CATEGORIES_COLLECTION, categories_for_db))
 
@@ -152,6 +155,7 @@ except Exception as e:
 @category_blueptint.route('/category')
 def category_index():
     # print(f" routes.py /app/blueprints/category category_index()")
+    logging.info(f" routes.py /app/blueprints/category category_index()")
     return render_template('category/category.html', title='Категоризація')
 
 
@@ -170,6 +174,7 @@ def category_index():
 @category_blueptint.route('/analyze', methods=['POST'])
 async def analyze():
     # print("'/analyze' route in app.py", file=sys.stderr)
+    logging.info("'/analyze' route in app.py", file=sys.stderr)
 
     socketio = current_app.socketio
 
@@ -179,6 +184,7 @@ async def analyze():
         results = []  # To store the results for each file
 
         # print("'/analyze' route in app.py - if request.method == 'POST':", file=sys.stderr)
+        logging.info("'/analyze' route in app.py - if request.method == 'POST':", file=sys.stderr)
         os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
         i = 1
@@ -186,9 +192,13 @@ async def analyze():
         # print("---------------------------------------")
         # print(f"FILES COUNTS: {len(request.files)}")
         # print("---------------------------------------")
+        logging.info("---------------------------------------")
+        logging.info(f"FILES COUNTS: {len(request.files)}")
+        logging.info("---------------------------------------")
 
         for key, f in request.files.items():
             # print(f"i : {i}")
+            logging.info(f"i : {i}")
             # print(f"request.files.items() :  {request.files.items()}")
 
             # print(f"{Color.BOLD} f: {f} {Color.END}")
@@ -198,6 +208,7 @@ async def analyze():
                 socketio.emit("client_update", f"Опрацьовується доумент {i} з {len(request.files)}")
 
                 # print(f"'/analyze' route in app.py - processing {key}:", file=sys.stderr)
+                logging.info(f"'/analyze' route in app.py - processing {key}:", file=sys.stderr)
                 unique_filename = f"uploaded_file_{uuid.uuid4()}.wav"
                 filepath = os.path.join(UPLOAD_FOLDER, unique_filename)
                 og_filename = f.filename
@@ -211,6 +222,7 @@ async def analyze():
                     fileHash = hash_file(filepath)
                 except Exception as e:
                     print(f"Error when trying to create hash from file ({filepath})", file=sys.stderr)
+                    logging.info(f"Error when trying to create hash from file ({filepath})", file=sys.stderr)
                     continue  # Skip to next file
 
                 fileInSystem = dbh.find_document(collection, {"_id": fileHash})
@@ -220,6 +232,7 @@ async def analyze():
                         print(f"New file in system, start processing file...")
                         result = compose_file_process(dbh, og_filename, filepath, fileHash, collection, CATEGORIES_COLLECTION)
                         # print(f"result: {result}")
+                        logging.info(f"result: {result}")
                     else:
                         result = fileInSystem
                         # TODO: delete time.sleep() its only for testing. <
@@ -234,15 +247,18 @@ async def analyze():
                     # print(f"{Color.YELLOW} use_hash_flag = FALSE {Color.END}")
                     result = compose_file_process(dbh, filepath, fileHash, collection, CATEGORIES_COLLECTION)
                     # print(f"result: {result}")
+                    logging.info(f"result: {result}")
 
                 results.append(result)
 
                 try:
                     os.remove(filepath)
                     # print(f"{Color.PURPLE} {filepath} file was successfully deleted from system.{Color.END}")
+                    logging.info(f"{filepath} file was successfully deleted from system.")
                 except Exception as e:
                     # print(f"{Color.RED} ERROR: can't delete {filepath} from system. Details: {e} {Color.END}")
                     print(f"ERROR: can't delete {filepath} from system. Details: {e}")
+                    logging.info(f"ERROR: can't delete {filepath} from system. Details: {e}")
 
             i += 1
 
@@ -250,6 +266,10 @@ async def analyze():
         # print(f"{Color.BLUE}results: {results} {Color.END}")
         # print(f"{Color.GREEN} length of results: {len(results)} {Color.END}")
         # print("===============================")
+        logging.info("===============================")
+        logging.info(f"results: {results}")
+        logging.info(f"length of results: {len(results)}")
+        logging.info("===============================")
 
         # Session['documents'] = results
         session['documents'] = results
@@ -273,6 +293,7 @@ async def analyze():
 @category_blueptint.route('/newcategory')
 def newcategory():
     # print("'/newcategory' route in app.py", file=sys.stderr)
+    logging.info("'/newcategory' route in app.py", file=sys.stderr)
 
     socketio = current_app.socketio
 
@@ -281,6 +302,7 @@ def newcategory():
 
     categories = get_list_of_categories_from_db(dbh, CATEGORIES_COLLECTION)
     # print(f"{Color.BRIGHT_CYAN}categories = {categories} {Color.END}")
+    logging.info(f"categories = {categories}")
     session['categories_from_db'] = categories
     return render_template('category/newcategory.html', title="Нові категорії", categories=categories)
 
@@ -288,6 +310,7 @@ def newcategory():
 @category_blueptint.route('/submit-dates', methods=['POST'])
 def submit_dates():
     # print("'/submit' route in app.py", file=sys.stderr)
+    logging.info("'/submit-dates' route in app.py", file=sys.stderr)
 
     socketio = current_app.socketio
 
@@ -295,9 +318,11 @@ def submit_dates():
 
     categories_from_db = session.get('categories_from_db')
     # print(f"categories_from_db from session : {categories_from_db}")
+    logging.info(f"categories_from_db from session : {categories_from_db}")
     if not categories_from_db:
         categories_from_db = get_list_of_categories_from_db(dbh, CATEGORIES_COLLECTION)
         # print(f"categories_from_db from DB : {categories_from_db}")
+        logging.info(f"categories_from_db from DB : {categories_from_db}")
 
 
     # categories = get_list_of_categories_from_db(dbh, CATEGORIES_COLLECTION)
@@ -316,6 +341,9 @@ def submit_dates():
     # print(f"data_with_potencial_new_category")
     # print(data_with_potencial_new_category)
     # print("1111111111111111111111111111111")
+    logging.info(f"data_with_potencial_new_category")
+    logging.info(data_with_potencial_new_category)
+    logging.info("1111111111111111111111111111111")
 
     # TODO: compose_document_update()!!! - hueta...
 
@@ -326,6 +354,10 @@ def submit_dates():
     # print("get_potential_category_by_dates:")
     # print(data_with_potencial_new_category)
     # print("---------------------------------")
+    logging.info("---------------------------------")
+    logging.info("get_potential_category_by_dates:")
+    logging.info(data_with_potencial_new_category)
+    logging.info("---------------------------------")
 
     potencial_new_category = [doc['potential_new_category'] for doc in data_with_potencial_new_category]
 
@@ -333,6 +365,10 @@ def submit_dates():
     # print("potencial_new_category:")
     # print(f"{Color.CYAN}{potencial_new_category}{Color.END}")
     # print("---------------------------------")
+    logging.info("---------------------------------")
+    logging.info("potencial_new_category:")
+    logging.info(f"{potencial_new_category}")
+    logging.info("---------------------------------")
 
     # classifyed_potential_categories = classify_categories_with_gpt(data_with_potencial_new_category)
     classifyed_potential_categories = classify_categories_with_gpt(potencial_new_category)
@@ -341,6 +377,10 @@ def submit_dates():
     # print("classify_categories_with_gpt in submit_dates route:")
     # print(f"{Color.CYAN}{classifyed_potential_categories}{Color.END}")
     # print("---------------------------------")
+    logging.info("---------------------------------")
+    logging.info("classify_categories_with_gpt in submit_dates route:")
+    logging.info(f"{classifyed_potential_categories}")
+    logging.info("---------------------------------")
 
     # print("===PLAY WITH classifyed_potential_categories =============<")
     # for key, values in classifyed_potential_categories.items():
@@ -350,6 +390,14 @@ def submit_dates():
     # for doc in classifyed_potential_categories:
     #     print(doc)
     # print("===PLAY WITH classifyed_potential_categories =============>")
+    logging.info("===PLAY WITH classifyed_potential_categories =============<")
+    for key, values in classifyed_potential_categories.items():
+        logging.info(f"Key: {key}")
+        for value in values:
+            logging.info(f"  ╰─Value: {value}")
+    for doc in classifyed_potential_categories:
+        logging.info(doc)
+    logging.info("===PLAY WITH classifyed_potential_categories =============>")
 
     combined_data = {}
 
@@ -364,6 +412,10 @@ def submit_dates():
     # print("combined_data in submit_dates route:")
     # print(f"{Color.BRIGHT_BLUE}{combined_data}{Color.END}")
     # print("---------------------------------")
+    logging.info("---------------------------------")
+    logging.info("combined_data in submit_dates route:")
+    logging.info(f"{combined_data}")
+    logging.info("---------------------------------")
 
     session['combined_data'] = combined_data
 
@@ -391,6 +443,9 @@ def get_category_data():
     # print(f"{Color.BG_BRIGHT_BLUE}key: {key} {Color.END}")
     # print(f"{Color.BG_CYAN}combined_data: {combined_data} {Color.END}")
     # print(f"{Color.BG_BRIGHT_GREEN}data_to_return: {data_to_return} {Color.END}")
+    logging.info(f"key: {key}")
+    logging.info(f"combined_data: {combined_data}")
+    logging.info(f"data_to_return: {data_to_return}")
 
 
     
@@ -403,13 +458,16 @@ def get_category_data():
 @category_blueptint.route('/create_new_category')
 def create_new_category():
     # print("inside create_new_category(): route +++++++++++++++++++++++++++")
+    logging.info("inside create_new_category(): route +++++++++++++++++++++++++++")
     new_category = request.args.get('key')
 
     # print(f"new_category : {new_category}")
+    logging.info(f"new_category : {new_category}")
 
     combined_data = session.get('combined_data')
 
     # print(f"combined_data : {combined_data}")
+    logging.info(f"combined_data : {combined_data}")
 
 
     data_to_update = combined_data[new_category]
@@ -419,6 +477,11 @@ def create_new_category():
     # print(f"{Color.CYAN}combined_data: {combined_data} {Color.END}")
     # print(f"{Color.BRIGHT_GREEN}data_to_update: {data_to_update} {Color.END}")
     # print(f"inside - create_new_category() >")
+    logging.info(f"inside - create_new_category() <")
+    logging.info(f"new_category: {new_category}")
+    logging.info(f"combined_data: {combined_data}")
+    logging.info(f"data_to_update: {data_to_update}")
+    logging.info(f"inside - create_new_category() >")
 
     # update_potential_category_by_id,
     # create_category_collection_in_db,
@@ -428,13 +491,18 @@ def create_new_category():
 
     # print(f"{Color.BG_BRIGHT_WHITE} -------------------------------- {Color.END}")
     # print(f"updated_documents :")
+    logging.info(f"--------------------------------")
+    logging.info(f"updated_documents :")
     for doc in updated_documents:
         # print(doc)
         # print('=============')
+        logging.info(doc)
+        logging.info('=============')
         if doc.modified_count > 0:
         # if doc['nModified'] > 0:
             update_documents_confirmation.append(True)
     # print(f"{Color.BG_BRIGHT_WHITE} -------------------------------- {Color.END}")
+    logging.info(f"--------------------------------")
 
 
 
@@ -450,10 +518,15 @@ def create_new_category():
     if new_category not in categories_in_db:
         # print(f"New category({new_category}) are NOT in category collection in DB")
         # print(f"{Color.GREEN} Creating new category in db... {Color.END}")
+        logging.info(f"New category({new_category}) are NOT in category collection in DB")
+        logging.info(f"Creating new category in db...")
         new_category_id = create_category_collection_in_db(dbh, CATEGORIES_COLLECTION, [new_category])
         # print(f"{Color.BG_BRIGHT_GREEN} -------------------------------- {Color.END}")
         # print(f"new_category_id : {new_category_id}")
         # print(f"{Color.BG_BRIGHT_GREEN} -------------------------------- {Color.END}")
+        logging.info(f"--------------------------------")
+        logging.info(f"new_category_id : {new_category_id}")
+        logging.info(f"--------------------------------")
 
     # response_data = {
     #     "new_category_id" : new_category_id,
@@ -482,14 +555,17 @@ def create_new_category():
 @category_blueptint.route('/abandon_category')
 def abandon_category():
     # print("inside abandon_category(): route ----------------------")
+    logging.info("inside abandon_category(): route ----------------------")
 
     new_category = request.args.get('key')
 
     # print(f"new_category : {new_category}")
+    logging.info(f"new_category : {new_category}")
 
     combined_data = session.get('combined_data')
 
     # print(f"combined_data : {combined_data}")
+    logging.info(f"combined_data : {combined_data}")
 
     data_to_update = combined_data[new_category]
 
@@ -498,6 +574,11 @@ def abandon_category():
     # print(f"{Color.CYAN}combined_data: {combined_data} {Color.END}")
     # print(f"{Color.BRIGHT_GREEN}data_to_update: {data_to_update} {Color.END}")
     # print(f"inside - create_new_category() >")
+    logging.info(f"inside - create_new_category() <")
+    logging.info(f"new_category: {new_category}")
+    logging.info(f"combined_data: {combined_data}")
+    logging.info(f"data_to_update: {data_to_update}")
+    logging.info(f"inside - create_new_category() >")
 
     updated_documents = abandon_potential_category_by_id(dbh, data_to_update, COLLECTION)    
 
@@ -505,13 +586,19 @@ def abandon_category():
 
     # print(f"{Color.BG_BRIGHT_WHITE} -------------------------------- {Color.END}")
     # print(f"updated_documents :")
+
+    logging.info(f"--------------------------------")
+    logging.info(f"updated_documents :")
     for doc in updated_documents:
         # print(doc)
         # print('=============')
+        logging.info(doc)
+        logging.info('=============')
         if doc.modified_count > 0:
         # if doc['nModified'] > 0:
             update_documents_confirmation.append(True)
     # print(f"{Color.BG_BRIGHT_WHITE} -------------------------------- {Color.END}")
+    logging.info(f"--------------------------------")
 
     if False not in update_documents_confirmation:
         is_documents_updated = True
@@ -541,11 +628,15 @@ def abandon_category():
 @category_blueptint.route('/download-category', methods=['GET'])
 def download_category():
     # print("/download route in app.py", file=sys.stderr)
+    logging.info("/download route in app.py")
 
     documents = session.get('documents')
     # print('<<<----------------------------------------------->>>')
     # print(f"{Color.YELLOW}documents: {documents} {Color.END}")
     # print('<<<----------------------------------------------->>>')
+    logging.info('<<<----------------------------------------------->>>')
+    logging.info(f"documents: {documents}")
+    logging.info('<<<----------------------------------------------->>>')
 
 
     xlsx_filename = f"AI_results.xlsx"
@@ -556,7 +647,8 @@ def download_category():
     filename = 'RESULTS'
 
     #FIXME : HARDCODED SHIT
-    file_to_send = '/Users/rostislavzubenko/Work/CC AI/combine_sent_cat_aio/uploads/AI_results.xlsx'
+    # file_to_send = '/Users/rostislavzubenko/Work/CC AI/combine_sent_cat_aio/uploads/AI_results.xlsx'
+    file_to_send = '/home/P-RZuben10302/flask/sentiment_category_aio/uploads/AI_results.xlsx'
 
     response = send_file(
         file_to_send,

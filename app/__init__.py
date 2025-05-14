@@ -1,4 +1,4 @@
-
+import logging
 from flask_socketio import SocketIO, emit
 
 from flask import Flask
@@ -12,6 +12,7 @@ from flask_dropzone import Dropzone
 
 def create_app(basedir):
     # print(f" __init__.py create_app() ")
+    logging.info(f" __init__.py create_app() ")
 
     # socketio = SocketIO()
 

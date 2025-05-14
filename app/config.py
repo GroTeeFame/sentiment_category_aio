@@ -1,3 +1,6 @@
+import logging
+
+logging.info(f" config.py ")
 # print(f" config.py ")
 
 

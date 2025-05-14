@@ -1,5 +1,6 @@
 from flask import Blueprint
 import os
+import logging
 from flask_dropzone import Dropzone
 from datetime import datetime, timedelta
 from flask_session import Session
@@ -15,6 +16,7 @@ category_blueptint = Blueprint('category', __name__)
 
 from . import routes
 
+logging.info(f" __init__.py /app/blueprints/category ")
 # print(f" __init__.py /app/blueprints/category ")
 
 
