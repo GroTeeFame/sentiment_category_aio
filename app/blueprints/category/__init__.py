@@ -17,7 +17,7 @@ category_blueptint = Blueprint('category', __name__)
 from . import routes
 
 logging.info(f" __init__.py /app/blueprints/category ")
-# print(f" __init__.py /app/blueprints/category ")
+print(f" __init__.py /app/blueprints/category ")
 
 
 def init_category(app, basedir):

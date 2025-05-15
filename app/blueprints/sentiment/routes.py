@@ -13,13 +13,13 @@ from app.config import Config
 
 
 
-print(f" routes.py /app/blueprints/category ")
+print(f" routes.py /app/blueprints/sentiment ")
 
 
 @sentiment_blueprint.route('/sentiment')
 def sentiment_index():
-    # print(f" routes.py /app/blueprints/category sentiment_index()")
-    logging.info(f" routes.py /app/blueprints/category sentiment_index()")
+    print(f" routes.py /app/blueprints/sentiment sentiment_index()")
+    logging.info(f" routes.py /app/blueprints/sentiment sentiment_index()")
     return render_template('sentiment/sentiment.html', title='Сентимент')
 
 
@@ -27,6 +27,7 @@ def sentiment_index():
 @sentiment_blueprint.route('/analyze-sentiment', methods=['POST'])
 async def analyze_sentiment():
     # print("'/analyze' route in app.py", file=sys.stderr)
+    print("'/analyze' route in app.py")
     logging.info("'/analyze' route in routes.py sentiment blueprint", file=sys.stderr)
     # app.logging.info("'/analyze' route in app.py")
     # flash("'/analyze' route in app.py")
@@ -39,11 +40,14 @@ async def analyze_sentiment():
     if request.method == 'POST':
         # print("----------------------------------", file=sys.stderr)
         # print("'/analyze' route in app.py - if request.method == 'POST':", file=sys.stderr)
+        print("----------------------------------")
+        print("'/analyze' route in app.py - if request.method == 'POST':")
         logging.info("'/analyze' route in routes.py sentiment blueprint - if request.method == 'POST':")
         # app.logging.info("'/analyze' route in app.py - if request.method == 'POST':")
         for key, f in request.files.items():
             if key.startswith('file'):
-                print("'/analyze' route in app.py - if key.startswith('file'):", file=sys.stderr)
+                # print("'/analyze' route in app.py - if key.startswith('file'):", file=sys.stderr)
+                print("'/analyze' route in app.py - if key.startswith('file'):")
                 logging.info("'/analyze' route in app.py - if key.startswith('file'):")
                 # app.logging.info("'/analyze' route in app.py - if key.startswith('file'):")
                 file = f
@@ -56,6 +60,7 @@ async def analyze_sentiment():
     messages = []
     try:
         # print("'/analyze' trying to make call to API:", file=sys.stderr)
+        print("'/analyze' trying to make call to API:")
         logging.info("'/analyze' trying to make call to API:")
         # app.logging.info("'/analyze' trying to make call to API:")
         with open(filepath, 'rb') as f:
@@ -68,7 +73,8 @@ async def analyze_sentiment():
                 response = await alapi.orchestrate_full_analysis(filepath, orchestrated_filepath)
             except Exception as e:
                 # flash(str(e), 'error')
-                print(f"ERROR in backend: {e}", file=sys.stderr)
+                # print(f"ERROR in backend: {e}", file=sys.stderr)
+                print(f"ERROR in backend: {e}")
                 logging.info(f"ERROR in backend: {e}")
                 # app.logging.info(f"ERROR in backend: {e}")
                 messages.append(str(e))
@@ -96,6 +102,7 @@ async def analyze_sentiment():
 @sentiment_blueprint.route('/download-sentiment', methods=['GET'])
 def download_sentiment():
     # print("/download route in app.py", file=sys.stderr)
+    print("/download route in app.py")
     logging.info("/download route in app.py")
     # app.logging.info("/download route in app.py")
 
@@ -103,9 +110,11 @@ def download_sentiment():
     orchestrated_filepath = session.get('orchestrated_filepath')
     filename = session.get('filename')
     # print(f"filename in '/download': {filename}", file=sys.stderr)
+    print(f"filename in '/download': {filename}")
     logging.info(f"filename in '/download': {filename}")
     # app.logging.info(f"filename in '/download': {filename}")
     # print(f"orchestrated_filepath in '/download': {orchestrated_filepath}", file=sys.stderr)
+    print(f"orchestrated_filepath in '/download': {orchestrated_filepath}")
     logging.info(f"orchestrated_filepath in '/download': {orchestrated_filepath}")
     # app.logging.info(f"orchestrated_filepath in '/download': {orchestrated_filepath}")
 
@@ -115,7 +124,7 @@ def download_sentiment():
     
     file_to_send = os.path.join('/home/P-RZuben10302/flask/sentiment_category_aio', orchestrated_filepath)
     
-    # print(f"!!!   ----- file_to_send: {file_to_send}")
+    print(f"!!!   ----- file_to_send: {file_to_send}")
 
 
     # application_root = os.path.dirname('uploads')
@@ -134,8 +143,8 @@ def download_sentiment():
         mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     )
 
-    # print('------deleting orchestrated_filepath------', file=sys.stderr)
     logging.info('------deleting orchestrated_filepath------')
+    print('------deleting orchestrated_filepath------')
     # app.logging.info('------deleting orchestrated_filepath------')
     os.remove(orchestrated_filepath)
     logging.info('------deleting uploaded_filepath------')

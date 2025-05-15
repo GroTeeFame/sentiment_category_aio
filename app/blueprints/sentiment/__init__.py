@@ -12,7 +12,7 @@ sentiment_blueprint = Blueprint('sentiment', __name__)
 
 from . import routes
 
-# print(f" __init__.py /app/blueprints/sentiment ")
+print(f" __init__.py /app/blueprints/sentiment ")
 logging.info(f" __init__.py /app/blueprints/sentiment ")
 
 
@@ -31,7 +31,7 @@ def init_sentiment(app, basedir):
         DROPZONE_UPLOAD_ON_CLICK=True,
     )
 
-    # print(f" routes.py /app/blueprints/category ")
+    print(f" routes.py /app/blueprints/sentiment ")
 
     # dropzone_sentiment = Dropzone(app)
 

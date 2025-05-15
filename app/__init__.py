@@ -11,7 +11,7 @@ from flask_dropzone import Dropzone
 
 
 def create_app(basedir):
-    # print(f" __init__.py create_app() ")
+    print(f" __init__.py create_app() ")
     logging.info(f" __init__.py create_app() ")
 
     # socketio = SocketIO()
