@@ -122,7 +122,7 @@ def download_sentiment():
 
     # file_to_send = os.path.join('/Users/rostislavzubenko/Work/CC AI/combine_sent_cat_aio/', orchestrated_filepath)
     
-    file_to_send = os.path.join('/home/P-RZuben10302/flask/sentiment_category_aio', orchestrated_filepath)
+    file_to_send = os.path.join('/home/P-RZuben10302/flask/test/sentiment_category_aio', orchestrated_filepath)
     
     print(f"!!!   ----- file_to_send: {file_to_send}")
 

@@ -8,9 +8,10 @@ import sys
 import uuid
 import logging
 from flask import Flask, request, Response, copy_current_request_context, send_file, render_template, session, flash, jsonify, redirect, url_for, redirect, send_from_directory, url_for
+# from flask import Flask, request, Response, copy_current_request_context, send_file, render_template, flash, jsonify, redirect, url_for, redirect, send_from_directory, url_for
 from flask_dropzone import Dropzone
 from flask_socketio import emit
-from flask_session import Session
+# from flask_session import Session
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 
@@ -649,7 +650,7 @@ def download_category():
 
     #FIXME : HARDCODED SHIT
     # file_to_send = '/Users/rostislavzubenko/Work/CC AI/combine_sent_cat_aio/uploads/AI_results.xlsx'
-    file_to_send = '/home/P-RZuben10302/flask/sentiment_category_aio/uploads/AI_results.xlsx'
+    file_to_send = '/home/P-RZuben10302/flask/test/sentiment_category_aio/uploads/AI_results.xlsx'
 
     response = send_file(
         file_to_send,

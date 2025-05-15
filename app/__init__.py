@@ -7,6 +7,8 @@ from app.blueprints.sentiment import sentiment_blueprint
 from app.blueprints.category import init_category
 from app.blueprints.sentiment import init_sentiment
 
+from flask_session import Session
+
 from flask_dropzone import Dropzone
 
 
@@ -24,11 +26,17 @@ def create_app(basedir):
 
     dropzone = Dropzone(app)
     
+    app.config['SECRET_KEY'] = 'mysupersecretkey'
+    app.config['SESSION_TYPE'] = 'filesystem'
+    Session(app)
+
+
     socketio = SocketIO(app, cors_allowed_origins="*")
     # socketio.init_app(app, cors_allowed_origins="*")
     
     # UPLOAD_FOLDER = 'uploads' 
 
+    # session = Session(app)
 
     app.secret_key = 'mysupersecretkey'
 
