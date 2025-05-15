@@ -116,7 +116,12 @@ def process_azure_standard(filename):
     recognizer.stop_continuous_recognition_async().get()
 
     if not all_texts:
-        return "", "", "немає результату (порожньо)"
+        # return "", "", "немає результату (порожньо)"
+        print("------PRINTING LOGS:----------------------------------------------------")
+        for log in log_lines:
+            print(log)
+        print("------------------------------------------------------------------------")
+        return "немає результату (порожньо)"
     
     aggregated_text = " ".join(all_texts).strip()
     log_lines.append(f"🎤 Розпізнано (загалом): {aggregated_text}")
