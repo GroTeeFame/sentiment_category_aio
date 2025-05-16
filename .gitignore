@@ -84,5 +84,8 @@ uploads/
 # Ignore flask session folder.
 flask_session/
 
+
 # Ignore todo.md file
 todo.md
+
+stt.py

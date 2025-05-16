@@ -1,5 +1,11 @@
-import azure.cognitiveservices.speech as speechsdk
 import os
+
+# os.environ['http_proxy'] = 'http://proxy.ubank.local:3128'
+# os.environ['https_proxy'] = 'http://proxy.ubank.local:3128'
+# os.environ['HTTP_PROXY'] = 'http://proxy.ubank.local:3128'
+# os.environ['HTTPS_PROXY'] = 'http://proxy.ubank.local:3128'
+
+import azure.cognitiveservices.speech as speechsdk
 import sys
 import time
 import json
@@ -66,8 +72,19 @@ def configure_speech(audio_file_path):
     # validate_environment_variables()
     if not KEY or not LOCATION:
         raise ValueError("Speech Service key and location must be set in environment variables.")
+    # Configure speech
     speech_config = speechsdk.SpeechConfig(subscription=KEY, region=LOCATION)
     speech_config.speech_recognition_language = "uk-UA"
+
+    # Set proxy config
+    proxy_hostname = 'proxy.ubank.local'
+    proxy_port = 3128
+    proxy_username = None
+    proxy_password = None
+
+    speech_config.set_proxy(proxy_hostname, proxy_port, proxy_username, proxy_password)
+    
+    # Config audio
     audio_config = speechsdk.audio.AudioConfig(filename=audio_file_path)
     return speechsdk.SpeechRecognizer(speech_config=speech_config, audio_config=audio_config)
 

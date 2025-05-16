@@ -7,7 +7,7 @@ print(f" config.py ")
 # UPLOAD_FOLDER = 'uploads'
 
 class Config:
-    DB_NAME = "test_csca_2" #TODO: DB for test creation on new categories.
+    DB_NAME = "test_csca_4" #TODO: DB for test creation on new categories.
     # DB_NAME = "test_csca_1" #TODO: DB for test creation on new categories.
     # DB_NAME = "test_new_category3" #TODO: DB for test creation on new categories.
     COLLECTION = "processed_records"

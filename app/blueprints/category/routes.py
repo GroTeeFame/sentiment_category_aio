@@ -656,7 +656,7 @@ def download_category():
         file_to_send,
         # orchestrated_filepath,
         as_attachment=True,
-        download_name=f"AI_{filename}",
+        download_name=f"AI_{filename}.xlsx",
         mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     )
 
