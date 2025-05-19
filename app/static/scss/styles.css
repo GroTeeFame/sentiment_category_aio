@@ -429,7 +429,7 @@ body {
 }
 
 .category-button {
-  text-wrap: nowrap;
+  white-space: nowrap;
   padding: 5px 10px;
   margin: 5px 5px;
   height: 32px;
@@ -472,7 +472,7 @@ body {
   overflow: auto;
   overflow-y: hidden;
   padding-bottom: 15px;
-  text-wrap: nowrap;
+  white-space: nowrap;
 }
 
 .document-btn {
