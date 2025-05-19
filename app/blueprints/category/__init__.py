@@ -12,7 +12,7 @@ from flask_session import Session
 
 from app.config import Config
 
-category_blueptint = Blueprint('category', __name__)
+category_blueprint = Blueprint('category', __name__)
 
 from . import routes
 
@@ -22,6 +22,7 @@ print(f" __init__.py /app/blueprints/category ")
 
 def init_category(app, basedir):
     # from . import routes
+    print(" init_category in category/__init__.py")
 
     app.config.update(
         UPLOADED_PATH=os.path.join(basedir, Config.UPLOAD_FOLDER),
@@ -34,6 +35,8 @@ def init_category(app, basedir):
         SESSION_TYPE = 'filesystem',
         PERMANENT_SESSION_LIFETIME = timedelta(hours=5)
     )
+
+    print(f"---------- basedir in category/__init__.py ------- : {basedir}")
 
 
     # dropzone_category = Dropzone(app)
@@ -48,4 +51,4 @@ def init_category(app, basedir):
     Session(app)
 
 
-    app.register_blueprint(category_blueptint)
+    app.register_blueprint(category_blueprint)
