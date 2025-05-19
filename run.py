@@ -10,7 +10,7 @@ load_dotenv()
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
-# print(f"---------- basedir in run.py ------- : {basedir}")
+print(f"---------- basedir in run.py ------- : {basedir}")
 
 # Create the application instance
 app = create_app(basedir=basedir)
