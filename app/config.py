@@ -1,18 +1,10 @@
-import logging
-
-logging.info(f" config.py ")
-print(f" config.py ")
-
-
-# UPLOAD_FOLDER = 'uploads'
-
 class Config:
-    DB_NAME = "test_csca_5" #TODO: DB for test creation on new categories.
-    # DB_NAME = "test_csca_1" #TODO: DB for test creation on new categories.
-    # DB_NAME = "test_new_category3" #TODO: DB for test creation on new categories.
+    DB_NAME = "prod_1" #TODO: DB for test creation on new categories.
     COLLECTION = "processed_records"
     CATEGORIES_COLLECTION = "categories"
     UPLOAD_FOLDER = 'uploads'
+    FLASK_SESSION_FOLDER = 'flask_session'
+    LOGS_FOLDER = 'logs'
     GPT_REPETITION_CALLS = 5
     CONVERSATION_CATEGORIES = """
         Category list:
@@ -56,16 +48,6 @@ class Config:
 
         list:
     """
-    #FIXME: original prompt, but too often give answer on eanglish
-    # CLASSIFY_CATEGORIES_WITH_GPT_PROMPT = """
-    #     Я надам тобі список категорій, це можуть бути однакові категорії за змістом, але перефразовані. Тобі потрібно проаналізувати ці категорії, поєднати подібні категорії та повернути список із унікальними категоріями за значенням. Надавай відповідь у наступному json форматі:
-    #     {
-    #         "aggregated_category": [categorys_from_list,],
-    #         "aggregated_category": [categorys_from_list,],
-    #     }
-
-    #     list:
-    # """
     categories_for_db = [
         "Надання фінансової інформації",
         "Monobank",

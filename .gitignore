@@ -81,6 +81,9 @@ node_modules/
 # Ignore uploads folder.
 uploads/
 
+# Ignore logs folder.
+logs/
+
 # Ignore flask session folder.
 flask_session/
 

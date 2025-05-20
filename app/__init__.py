@@ -1,9 +1,12 @@
+import os
 import logging
+from logging.handlers import RotatingFileHandler
+from logging.handlers import TimedRotatingFileHandler
 from flask_socketio import SocketIO, emit
 
+from app.config import Config
+
 from flask import Flask
-from app.blueprints.category import category_blueptint
-from app.blueprints.sentiment import sentiment_blueprint
 from app.blueprints.category import init_category
 from app.blueprints.sentiment import init_sentiment
 
@@ -11,18 +14,28 @@ from flask_session import Session
 
 from flask_dropzone import Dropzone
 
+from .logger_setup import setup_logger
 
 def create_app(basedir):
-    print(f" __init__.py create_app() ")
-    logging.info(f" __init__.py create_app() ")
+    # Make sure that all needed folders exists:
+    if not os.path.exists(os.path.join(basedir, Config.UPLOAD_FOLDER)):
+        os.makedirs(os.path.join(basedir, Config.UPLOAD_FOLDER))
+    
+    if not os.path.exists(os.path.join(basedir, Config.FLASK_SESSION_FOLDER)):
+        os.makedirs(os.path.join(basedir, Config.FLASK_SESSION_FOLDER))
 
-    # socketio = SocketIO()
+    if not os.path.exists(os.path.join(basedir, Config.LOGS_FOLDER)):
+        os.makedirs(os.path.join(basedir, Config.LOGS_FOLDER))
 
-    # basedir = os.path.abspath(os.path.dirname(__file__))
-
+    logs_path = f"{os.path.join(basedir, Config.LOGS_FOLDER)}/app.log"
 
     app = Flask(__name__)
-    # app.config.from_pyfile('config.py')
+
+    # Set up logger
+    logger = setup_logger()
+    app.logger.handlers = []  # Clear any existing handlers
+    app.logger.addHandler(logger.handlers[0])
+    app.logger.setLevel(logging.INFO)
 
     dropzone = Dropzone(app)
     
@@ -30,24 +43,13 @@ def create_app(basedir):
     app.config['SESSION_TYPE'] = 'filesystem'
     Session(app)
 
-
     socketio = SocketIO(app, cors_allowed_origins="*")
-    # socketio.init_app(app, cors_allowed_origins="*")
-    
-    # UPLOAD_FOLDER = 'uploads' 
-
-    # session = Session(app)
 
     app.secret_key = 'mysupersecretkey'
 
-    # app.register_blueprint(category_blueptint, url_prefix='/category')
-    # app.register_blueprint(category_blueptint)
-    # app.register_blueprint(sentiment_blueprint, url_prefix='/sentiment')
-    # app.register_blueprint(sentiment_blueprint)
     init_sentiment(app, basedir=basedir)
     init_category(app, basedir=basedir)
 
     app.socketio = socketio
-    
 
     return app

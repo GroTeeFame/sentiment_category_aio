@@ -10,9 +10,13 @@ import os
 from azure.ai.textanalytics import TextAnalyticsClient
 from azure.core.credentials import AzureKeyCredential
 from pydantic import BaseModel
-# from contextlib import redirect_stdout
 import datetime
 import logging
+from flask import current_app
+
+from app.logger_setup import setup_logger
+
+logger = setup_logger(__name__)
 
 # CONSTANTS ----------------->
 BATCH_SIZE = 10
@@ -44,15 +48,13 @@ def add_sender_column_from_excel(file_stream: BytesIO) -> pd.DataFrame:
     The function assumes that the conversation messages are in the fourth column (index 3) of the Excel sheet.
     Adjust the `conversation_column` variable if the messages are in a different column.
     """
-
-    print("add_sender_column_from_excel()")
-    logging.info("add_sender_column_from_excel()")
+    logger.info("add_sender_column_from_excel()")
     # Load the workbook from BytesIO object
     try:
         wb = openpyxl.load_workbook(file_stream, data_only=True)
     except Exception as e:
-        print(f"ERROR: {e}")
-        logging.error(f"ERROR: {e}")
+        # print(f"ERROR: {e}")
+        logger.error(f"ERROR: {e}")
         raise ValueError("Could not read the Excel file stream") from e
     sheet = wb.active
     # Get the headers from the first row
@@ -72,8 +74,7 @@ def add_sender_column_from_excel(file_stream: BytesIO) -> pd.DataFrame:
 
     # Check if conversation_column is within bounds
     if conversation_column >= len(original_columns):
-        print("ERROR: The conversation column index is out of bounds.")
-        logging.error("ERROR: The conversation column index is out of bounds.")
+        logger.error("ERROR: The conversation column index is out of bounds.")
         raise ValueError("The conversation column index is out of bounds.")
 
     # List to store sender information
@@ -123,8 +124,8 @@ def xlsx_to_json(file_stream: BytesIO) -> List[Dict]:
     The function reads the entire Excel file and converts it into a JSON object, preserving non-ASCII characters.
     """
 
-    print("xlsx_to_json")
-    logging.info("xlsx_to_json")
+    # print("xlsx_to_json")
+    logger.info("xlsx_to_json")
 
     # Read the Excel file into a DataFrame
     try:
@@ -167,9 +168,7 @@ def convert_json_to_ai_format(file_stream) -> List[List[Dict]]:
     -----
     The function processes JSON data extracted from an Excel file. It groups conversation messages into separate documents based on a change in the 'КЛІЄНТ' field.
     """
-    
-    print("convert_json_to_ai_format")
-    logging.info("convert_json_to_ai_format")
+    logger.info("convert_json_to_ai_format")
 
     # Load data depending on the input type
     if isinstance(file_stream, list):
@@ -211,10 +210,6 @@ def convert_json_to_ai_format(file_stream) -> List[List[Dict]]:
     if document:
         documents.append(document)
 
-    # print('<-------DOCUMENTS-------')
-    # printd(documents)
-    # print('-------DOCUMENTS------->')
-
     return documents
 
 
@@ -237,8 +232,7 @@ def create_text_analytics_client() -> TextAnalyticsClient:
     The function relies on environment variables `LANGUAGE_ENDPOINT` and `LANGUAGE_KEY` for the Azure Text Analytics service configuration.
     Ensure that these variables are correctly set in the environment or a `.env` file.
     """
-
-    print("create_text_analytics_client")
+    logger.info("create_text_analytics_client")
 
     try:
         # Load environment variables from a .env file
@@ -259,8 +253,7 @@ def create_text_analytics_client() -> TextAnalyticsClient:
             credential=ta_credential
         )
     except Exception as e:
-        logging.error(f"ERROR: Can`t create Azure text resource.")
-        print(f"ERROR: Can`t create Azure text resource.")
+        logger.error(f"ERROR: Can`t create Azure text resource.")
 
     return text_analytics_client
 
@@ -287,27 +280,19 @@ def analyze_sentiment_with_summary(client: TextAnalyticsClient, documents: List[
     ------
     None
     """
-
-    print("analyze_sentiment_with_summary")
-    logging.info("analyze_sentiment_with_summary")
+    logger.info("analyze_sentiment_with_summary")
 
     list_of_results = []
     
     # Perform sentiment analysis on the documents
     try:
-        print("before 'result = client.analyze_sentiment(documents)'")
-        logging.info("before 'result = client.analyze_sentiment(documents)'")
+        logger.info("before 'result = client.analyze_sentiment(documents)'")
         result = client.analyze_sentiment(documents)
-        print("after 'result = client.analyze_sentiment(documents)'")
-        logging.info("after 'result = client.analyze_sentiment(documents)'")
+        logger.info("after 'result = client.analyze_sentiment(documents)'")
     except Exception as e:
-        # print(f"Sentiment analysis failed: {e}")
-        logging.error(f"Sentiment analysis failed: {e}")
-        # result = []
+        logger.error(f"Sentiment analysis failed: {e}")
         return list_of_results
 
-    # Collect all results in a list
-    # list_of_results.append(result)
     list_of_results.extend(result)
 
     total_positive = 0
@@ -337,21 +322,14 @@ def analyze_sentiment_with_summary(client: TextAnalyticsClient, documents: List[
         else:
             overall_sentiment = "neutral"
 
-        print('------------------------------------------------------------')
-        print(f"Av positive : {average_positive:.2f}")
-        print(f"Av neutral : {average_neutral:.2f}")
-        print(f"Av negative : {average_negative:.2f}")
-        print(f"Overall Sentiment for Conversation: {overall_sentiment}")
-        print('------------------------------------------------------------')
-        logging.info('------------------------------------------------------------')
-        logging.info(f"Av positive : {average_positive:.2f}")
-        logging.info(f"Av neutral : {average_neutral:.2f}")
-        logging.info(f"Av negative : {average_negative:.2f}")
-        logging.info(f"Overall Sentiment for Conversation: {overall_sentiment}")
-        logging.info('------------------------------------------------------------')
+        logger.info('------------------------------------------------------------')
+        logger.info(f"Av positive : {average_positive:.2f}")
+        logger.info(f"Av neutral : {average_neutral:.2f}")
+        logger.info(f"Av negative : {average_negative:.2f}")
+        logger.info(f"Overall Sentiment for Conversation: {overall_sentiment}")
+        logger.info('------------------------------------------------------------')
 
     return list_of_results
-    # return result
 
 
 # Helper function to split documents that longer than 10 into smaller batches:
@@ -381,9 +359,7 @@ def split_into_batches(documents: List[Dict], batch_size: int = 10) -> List[List
     The function divides the input list of documents into sublists (batches) where each sublist has up to `batch_size` documents.
     This is useful for processing large datasets in manageable chunks.
     """
-
-    # print("split_into_batches")
-    logging.info("split_into_batches")
+    logger.info("split_into_batches")
 
     # Validate batch size
     if not isinstance(batch_size, int) or batch_size <= 0:
@@ -422,8 +398,7 @@ def analyze_sentiment_in_batches(client: TextAnalyticsClient, batches: List[List
     This function processes each batch of documents by calling the `analyze_sentiment_with_summary` function.
     It collects the results from each batch and returns them as a list of results.
     """
-    print("-----analyze_sentiment_in_batches-----")
-    logging.info("-----analyze_sentiment_in_batches-----")
+    logger.info("-----analyze_sentiment_in_batches-----")
     batches_result = []
 
     # Process each batch of documents
@@ -463,12 +438,10 @@ async def analyze_sentiment(data: List[List[Document]]) -> List:
     list
         A list of sentiment analysis results.
     """
-    print('/analyze_sentiment')
-    logging.info('/analyze_sentiment')
+    logger.info('/analyze_sentiment')
     
     ct = datetime.datetime.now()
-    print(f"current time:  {ct}")
-    logging.info(f"current time :  {ct}")
+    logger.info(f"current time :  {ct}")
 
     client = create_text_analytics_client()
 
@@ -491,8 +464,7 @@ async def analyze_sentiment(data: List[List[Document]]) -> List:
             result_list.append(result)
     
     except Exception as e:
-        logging.error("Error processing document batch: %s", e)
-        print("Error processing document batch: %s", e)
+        logger.error("Error processing document batch: %s", e)
         raise HTTPException(status_code=500, detail="Error processing document")
 
     return result_list
@@ -510,8 +482,7 @@ def format_and_save_sentiment_plus(combined_data: dict, output_path: str):
     output_path : str
         The path where the enriched Excel data will be saved.
     """
-    logging.info("/format_and_save_sentiment_plus")
-    print("/format_and_save_sentiment_plus")
+    logger.info("/format_and_save_sentiment_plus")
 
     try:
         sentiment_data = combined_data['sentiment_data']
@@ -630,11 +601,9 @@ def format_and_save_sentiment_plus(combined_data: dict, output_path: str):
     # Save the workbook
     try:
         wb.save(output_path)
-        print(f"File saved to {output_path}")
-        logging.info(f"File saved to {output_path}")
+        logger.info(f"File saved to {output_path}")
     except Exception as e:
-        print("Error saving the workbook: %s", e)
-        logging.error("Error saving the workbook: %s", e)
+        logger.error("Error saving the workbook: %s", e)
         raise Exception("Error saving the Excel file")
 
 
@@ -649,8 +618,7 @@ async def orchestrate_full_analysis(file_path: str, output_path: str):
     output_path : str
         The path where the enriched Excel file will be saved.
     """
-    print('Starting full analysis process in alp.py')
-    logging.info('Starting full analysis process')
+    logger.info('Starting full analysis process')
 
     # Read the file
     try:
@@ -658,16 +626,14 @@ async def orchestrate_full_analysis(file_path: str, output_path: str):
             contents = f.read()
             file_stream = BytesIO(contents)
     except Exception as e:
-        print(f"Error reading file: {e}")
-        logging.error(f"Error reading file: {e}")
+        logger.error(f"Error reading file: {e}")
         raise Exception("Could not read file")
     
     # Processing: Adding sender information
     try:
         df = add_sender_column_from_excel(file_stream)
     except Exception as e:
-        print(f"ERROR occured (te in orchestrate_full_analysis) : {e}")
-        logging.error(f"ERROR occured (te in orchestrate_full_analysis) : {e}")
+        logger.error(f"ERROR occured (te in orchestrate_full_analysis) : {e}")
         raise
 
     buffer = BytesIO()
@@ -675,8 +641,7 @@ async def orchestrate_full_analysis(file_path: str, output_path: str):
         with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
             df.to_excel(writer, index=False)
     except Exception as e:
-        print(f"!!!ERROR: {e}")
-        logging.error(f"!!!ERROR: {e}")
+        logger.error(f"!!!ERROR: {e}")
     buffer.seek(0)
 
     # Convert Excel to JSON
@@ -697,8 +662,7 @@ async def orchestrate_full_analysis(file_path: str, output_path: str):
     format_and_save_sentiment_plus(combined_data, output_path)
 
     # Move or rename final output file
-    print(f"Enriched file saved to {output_path}")
-    logging.info(f"Enriched file saved to {output_path}")
+    logger.info(f"Enriched file saved to {output_path}")
 
     return {"status_code": 200}
 

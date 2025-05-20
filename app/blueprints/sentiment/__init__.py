@@ -3,8 +3,6 @@ import os
 from flask_dropzone import Dropzone
 import logging
 
-# from config import ( UPLOAD_FOLDER )
-
 from app.config import Config
 
 
@@ -12,14 +10,8 @@ sentiment_blueprint = Blueprint('sentiment', __name__)
 
 from . import routes
 
-print(f" __init__.py /app/blueprints/sentiment ")
-logging.info(f" __init__.py /app/blueprints/sentiment ")
-
 
 def init_sentiment(app, basedir):
-    # UPLOAD_FOLDER = 'uploads' 
-
-    # basedir = os.path.abspath(os.path.dirname(__file__))
 
     app.config.update(
         UPLOADED_PATH=os.path.join(basedir, Config.UPLOAD_FOLDER),
@@ -31,8 +23,6 @@ def init_sentiment(app, basedir):
         DROPZONE_UPLOAD_ON_CLICK=True,
     )
 
-    print(f" routes.py /app/blueprints/sentiment ")
-
-    # dropzone_sentiment = Dropzone(app)
+    app.logger.info(f" routes.py /app/blueprints/sentiment ")
 
     app.register_blueprint(sentiment_blueprint)
