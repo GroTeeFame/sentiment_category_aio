@@ -21,5 +21,5 @@ def index():
 if __name__ == '__main__':
     app.logger.info("run.py ")
     
-    app.run(debug=True, host='0.0.0.0', port=20000)
-    # app.run(host='0.0.0.0', port=20000)
+    # app.run(debug=True, host='0.0.0.0', port=20000)
+    app.run(host='0.0.0.0', port=20000) 
