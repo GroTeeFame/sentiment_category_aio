@@ -14,7 +14,8 @@ from datetime import datetime, timedelta
 from dotenv import load_dotenv
 
 
-from app.blueprints.category.mongodb_handler import MongoDBHandler
+# from app.blueprints.category.mongodb_handler import MongoDBHandler
+from app.mongodb_handler import MongoDBHandler
 from app.blueprints.category.hasher import hash_file
 from app.blueprints.category.atts_ai_functions import (
     compose_file_process,
@@ -60,10 +61,11 @@ try:
 
     collection = COLLECTION
 
-    logger.info(f"Connection with DB({DB_NAME}) was successfully established in app.py")
+    logger.info(f"Connection with DB({DB_NAME}) was successfully established in category/routes.py")
 
 except Exception as e:
-    print(f"Error when trying to connect to db...")
+    # print(f"Error when trying to connect to db...")
+    logger.error(f"Error when trying to connect to db... category/routes.py")
     raise e
 
 
@@ -173,7 +175,7 @@ def newcategory():
 
 @category_blueprint.route('/submit-dates', methods=['POST'])
 def submit_dates():
-    logger.info("'/submit' route in app.py")
+    logger.info("'/submit-dates' route in category/routes.py")
 
     socketio = current_app.socketio
 

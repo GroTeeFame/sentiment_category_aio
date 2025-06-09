@@ -30,6 +30,8 @@
         <a href="{{ url_for('sentiment.sentiment_index') }}" class="{% if title == 'Сентимент' %}active{% endif %}">Сентимент</a>
         <a href="{{ url_for('category.category_index') }}" class="{% if title == 'Категоризація' %}active{% endif %}">Категоризація</a>
         <a href="{{ url_for('category.newcategory') }}" class="{% if title == 'Нові категорії' %}active{% endif %}">Нові категорії</a>
+        <a href="{{ url_for('db_controller.db_controller_index') }}" class="{% if title == 'Контролер БД' %}active{% endif %}">Контролер БД</a>
+        
     </div>
     <div class="main-content">
         <!-- {% block content %}{% endblock %} -->

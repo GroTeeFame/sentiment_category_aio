@@ -9,6 +9,7 @@ from app.config import Config
 from flask import Flask
 from app.blueprints.category import init_category
 from app.blueprints.sentiment import init_sentiment
+from app.blueprints.db_controller import init_db_controller
 
 from flask_session import Session
 
@@ -49,6 +50,7 @@ def create_app(basedir):
 
     init_sentiment(app, basedir=basedir)
     init_category(app, basedir=basedir)
+    init_db_controller(app, basedir=basedir)
 
     app.socketio = socketio
 

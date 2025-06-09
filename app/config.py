@@ -1,5 +1,7 @@
 class Config:
-    DB_NAME = "prod_1" #TODO: DB for test creation on new categories.
+    # DB_NAME = "prod_1" #TODO: DB for test creation on new categories.
+    # DB_NAME = "test_csca_2" #TODO: DB for test creation on new categories.
+    DB_NAME = "test_big_1" #TODO: DB for test creation on new categories.
     COLLECTION = "processed_records"
     CATEGORIES_COLLECTION = "categories"
     UPLOAD_FOLDER = 'uploads'

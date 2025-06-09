@@ -1,0 +1,51 @@
+{% if list_of_documents%}
+    <div id="page-data" data-page="{{ date_obj.page }}" data-total-pages="{{ date_obj.total_pages }}"></div>
+    <div class="documents-table-wrp">
+        <div class="grid-table">
+            <div class="table-row header">
+                <div class="first"></div>
+                <div class="second">id</div>
+                <div class="third">Категорія</div>
+                <div class="fourth">Потенційна категорія</div>
+                <div class="fifth">Дата опрацювання</div>
+                <div class="edit-col"></div>
+                <div class="del-col"></div>
+            </div>
+        {% for item in list_of_documents %}
+
+            <div class="table-row">
+                <div class="first">{{ date_obj['count_start'] + loop.index }}</div>
+                <div class="second">{{ item['_id'] }}</div>
+                <div class="third">{{ item['category'] }}</div>
+                <div class="fourth">{{ item['potential_new_category'] if item['potential_new_category'] != 'Null' else '-'}}</div>
+                <div class="fifth">{{ item['timestamp'].strftime('%d.%m.%y %H:%M') }}</div>
+                <div class="edit-col">
+                    <button 
+                        class="edit-btn"
+                        data-key="{{ item['_id'] }}"
+                        data-item="{{ item }}"
+                        onclick='handleEditDocumentButtonClick({{ item | tojson | safe }})'
+                    >
+                        edit
+                    </button>
+                </div>
+                <div class="del-col">
+                    <button 
+                        class="delete-btn"
+                        data-key="{{ item['_id'] }}"
+                        onclick='handleDeleteDocumentButtonClick(this.dataset.key)'
+                    >
+                        delete
+                    </button>
+                </div>
+            </div>
+        {% endfor %}
+        </div>
+    </div>
+{% else %}
+    {% if date_obj %}
+        <div class="documents-not-found">
+            <p>В БД відсутні записи за обраний період часу: {{ date_obj['start_date']}} - {{ date_obj['end_date'] }}.</p>
+        </div>
+    {% endif %}
+{% endif %}
